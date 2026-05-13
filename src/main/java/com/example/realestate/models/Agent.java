@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 public class Agent extends User {
     private String licenseNumber;
 
+
     public Agent() {}
 
     public String getLicenseNumber() {
@@ -16,3 +17,4 @@ public class Agent extends User {
         this.licenseNumber = licenseNumber;
     }
 }
+

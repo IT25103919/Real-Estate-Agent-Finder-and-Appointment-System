@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Real Estate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 40px 50px;
+            border-radius: 20px;
+            border: 2px solid #2b6cb0;
+            box-shadow: 0 10px 30px rgba(43, 108, 176, 0.1);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        h2 { color: #2b6cb0; font-size: 28px; margin-bottom: 25px; }
+
+        /* Role Selection Styling */
+        .role-selection {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .role-option input[type="radio"] {
+            display: none; /* Original radio button eka hide karanawa */
+        }
+
+        .role-option label {
+            display: block;
+            padding: 12px;
+            background: #f7fafc;
+            border: 2px solid #edf2f7;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+
+        /* Select kalama ena style eka */
+        .role-option input[type="radio"]:checked + label {
+            border-color: #2b6cb0;
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+        }
+
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        input:focus { outline: none; border-color: #2b6cb0; }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background-color: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #message { margin-top: 15px; font-size: 14px; }
+        .error { color: #e53e3e; }
+        .success { color: #38a169; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>🏠 Real Estate Login</h2>
+
+    <!-- Role Selection (Tic danna thana) -->
+    <div class="role-selection">
+        <div class="role-option">
+            <input type="radio" id="client" name="role" value="CLIENT" checked>
+            <label for="client">Client</label>
+        </div>
+        <div class="role-option">
+            <input type="radio" id="agent" name="role" value="AGENT">
+            <label for="agent">Agent</label>
+        </div>
+        <div class="role-option">
+            <input type="radio" id="admin" name="role" value="ADMIN">
+            <label for="admin">Admin</label>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="email@example.com">
+    </div>
+
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••">
+    </div>
+
+    <button onclick="doLogin()">Login</button>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    async function doLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      // Select karapu role eka ganna widiya
+      const role = document.querySelector('input[name="role"]:checked').value;
+      const msgDiv = document.getElementById('message');
+
+      if (!email || !password) {
+        msgDiv.innerHTML = '<span class="error">Please fill in all fields.</span>';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // Api role ekath backend ekata yawanna puluwan ona nam
+          body: JSON.stringify({ email, password, role })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('userName', data.name);
+          msgDiv.innerHTML = '<span class="success">Login successful!</span>';
+
+          setTimeout(() => {
+            if (data.role === 'ADMIN') window.location.href = 'admin-dashboard.html';
+            else if (data.role === 'AGENT') window.location.href = 'agent-dashboard.html';
+            else window.location.href = 'client-dashboard.html';
+          }, 1000);
+        } else {
+          msgDiv.innerHTML = `<span class="error">${data.message}</span>`;
+        }
+      } catch (err) {
+        msgDiv.innerHTML = '<span class="error">Server error!</span>';
+      }
+    }
+</script>
+
+</body>
+</html>
