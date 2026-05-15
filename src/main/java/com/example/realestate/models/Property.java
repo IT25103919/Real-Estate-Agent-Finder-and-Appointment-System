@@ -85,4 +85,16 @@ public abstract class Property {
     public void setStatus(String status) {
         this.status = status;
     }
+    private boolean isFavourite = false;
+
+    public boolean isIsFavourite() {
+        return isFavourite;
+    }
+
+    public void setIsFavourite(boolean isFavourite) {
+        this.isFavourite = isFavourite;
+    }
+
+
+
 }

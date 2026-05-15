@@ -38,4 +38,33 @@ public class PropertyService {
     public void deleteProperty(Long id) {
         propertyRepository.deleteById(id);
     }
+
+    public Property updateResidentialProperty(Long id, ResidentialProperty updatedDetails) {
+        if (residentialPropertyRepository.existsById(id)) {
+            updatedDetails.setId(id);
+            return residentialPropertyRepository.save(updatedDetails);
+        } else {
+            throw new RuntimeException("Residential Property not found with id " + id);
+        }
+    }
+
+    public Property updateCommercialProperty(Long id, CommercialProperty updatedDetails) {
+        if (commercialPropertyRepository.existsById(id)) {
+            updatedDetails.setId(id);
+            return commercialPropertyRepository.save(updatedDetails);
+        } else {
+            throw new RuntimeException("Commercial Property not found with id " + id);
+        }
+    }
+    public Property toggleFavourite(Long id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found with id " + id));
+
+        property.setIsFavourite(!property.isIsFavourite());
+
+        return propertyRepository.save(property);
+    }
+
+
+
 }
