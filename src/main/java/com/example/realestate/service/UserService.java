@@ -19,6 +19,16 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             return "EMAIL_EXISTS";
         }
+
+        // If the person is registering as an AGENT,
+        // set their status to PENDING (needs admin approval)
+        // If CLIENT or ADMIN, set to ACTIVE straight away
+        if (user.getRole() == User.Role.AGENT) {
+            user.setStatus(User.Status.PENDING);
+        } else {
+            user.setStatus(User.Status.ACTIVE);
+        }
+
         // Save password as plain text (no hashing)
         userRepository.save(user);
         return "SUCCESS";

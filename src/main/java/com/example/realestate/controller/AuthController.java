@@ -1,6 +1,8 @@
 package com.example.realestate.controller;
+
 import com.example.realestate.models.User;
 import com.example.realestate.service.UserService;
+import com.example.realestate.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -16,6 +19,10 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+
+    @Autowired
+    private UserRepository userRepository;
 
     // REGISTER endpoint
     @PostMapping("/register")
@@ -36,16 +43,42 @@ public class AuthController {
 
     // LOGIN endpoint
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String password = body.get("password");
 
-        User user = userService.login(email, password);
+        // First check if the user exists at all
+        Optional<User> userOpt = userRepository.findByEmail(email);
         Map<String, String> response = new HashMap<>();
+
+        if (userOpt.isEmpty()) {
+            response.put("status", "error");
+            response.put("message", "No account found with this email.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        User foundUser = userOpt.get();
+
+        // Check if banned
+        if (foundUser.getStatus() == User.Status.BANNED) {
+            response.put("status", "error");
+            response.put("message", "Your account has been banned. Contact admin.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        // Check if pending (agent not approved yet)
+        if (foundUser.getStatus() == User.Status.PENDING) {
+            response.put("status", "error");
+            response.put("message", "Your agent account is pending admin approval.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        // Now check password
+        User user = userService.login(email, password);
 
         if (user == null) {
             response.put("status", "error");
-            response.put("message", "Invalid email or password.");
+            response.put("message", "Wrong password.");
             return ResponseEntity.status(401).body(response);
         }
 
