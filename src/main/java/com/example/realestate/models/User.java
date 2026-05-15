@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "User")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
     @Id
