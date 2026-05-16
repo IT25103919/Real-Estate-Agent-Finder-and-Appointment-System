@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Appointments</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:40px;
+        }
+
+        .container{
+            max-width:1100px;
+            width:100%;
+            margin:auto;
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            animation:fadeIn 0.4s ease;
+        }
+
+        .card{
+            background:#e9ecef;
+            padding:25px;
+            margin-top:12px;
+            border-radius:10px;
+            transition:0.3s;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            max-width:100%;
+            display:flex;
+            flex-direction:column;
+            gap:4px;
+            align-items:flex-start;
+            min-height:180px;
+            justify-content:center;
+        }
+
+        .card p{
+            margin:4px 0;
+        }
+
+        .card:hover{
+            transform:translateY(-4px);
+        }
+
+        button{
+            padding:10px 20px;
+            border:none;
+            cursor:pointer;
+            color:white;
+            margin-right:10px;
+            border-radius:5px;
+            font-weight:bold;
+            background:#007bff;
+        }
+
+        button:hover{
+            opacity:0.9;
+            transform:scale(1.03);
+            transition:0.2s;
+        }
+
+        .approve{
+            background:green;
+        }
+
+        .reject{
+            background:red;
+        }
+
+        .delete{
+            background:#333;
+            width:140px;
+        }
+
+        .complete{
+            background:blue;
+        }
+
+        .approved-text{
+            color:green;
+            font-weight:bold;
+        }
+
+        .rejected-text{
+            color:red;
+            font-weight:bold;
+        }
+
+        .pending-text{
+            color:orange;
+            font-weight:bold;
+        }
+
+        .completed-text{
+            color:blue;
+            font-weight:bold;
+        }
+
+        .dashboard{
+            display:grid;
+            grid-template-columns:
+            repeat(auto-fit,minmax(150px,1fr));
+
+            gap:15px;
+            margin-bottom:30px;
+        }
+
+        .dash-card{
+            background:#007bff;
+            color:white;
+            padding:20px;
+            border-radius:10px;
+            text-align:center;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            margin-top:15px;
+            transition:0.3s;
+        }
+
+        .dash-card h3{
+            margin-bottom:10px;
+        }
+
+        .dash-card p{
+            font-size:28px;
+            font-weight:bold;
+            margin-top:15px;
+        }
+
+        .navbar{
+            background:#007bff;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+        }
+
+        .navbar a{
+            color:white;
+            text-decoration:none;
+            margin-right:20px;
+            font-weight:bold;
+            transition:0.2s;
+        }
+
+        .navbar a:hover{
+            opacity:0.8;
+        }
+
+        .dash-card:hover{
+            transform:translateY(-3px);
+        }
+
+        .filters{
+            margin-bottom:20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+    <div class="navbar">
+
+        <a href="/properties/listPage">
+            Properties
+        </a>
+
+        <a href="/availability/listPage">
+            Availability
+        </a>
+
+        <a href="/appointments/listPage">
+            Appointments
+        </a>
+
+    </div>
+
+    <h2>Appointments</h2>
+
+    <div class="dashboard">
+
+        <div class="dash-card">
+            <h3>Total</h3>
+            <p id="totalCount">0</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Pending</h3>
+            <p id="pendingCount">0</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Approved</h3>
+            <p id="approvedCount">0</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Completed</h3>
+            <p id="completedCount">0</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Rejected</h3>
+            <p id="rejectedCount">0</p>
+        </div>
+    </div>
+
+    <div class="filters">
+
+        <button onclick="loadAppointments()">
+            All
+        </button>
+
+        <button onclick="filterStatus('Pending')">
+            Pending
+        </button>
+
+        <button onclick="filterStatus('Approved')">
+            Approved
+        </button>
+
+        <button onclick="filterStatus('Rejected')">
+            Rejected
+        </button>
+
+        <button onclick="filterStatus('Completed')">
+            Completed
+        </button>
+
+    </div>
+
+    <div id="results"></div>
+
+</div>
+
+<script>
+
+        function displayAppointments(data){
+
+            let html = "";
+
+            data.forEach(appointment => {
+
+                 html += `
+                <div class="card">
+
+                    <h3>${appointment.clientId}</h3>
+
+                    <p>
+                        Agent: ${appointment.agentId}
+                    </p>
+
+                    <p>
+                        ${appointment.date}
+                    </p>
+
+                    <p>
+                        ${appointment.time}
+                    </p>
+
+                    <p class="
+                        ${
+        appointment.status === 'Approved'
+        ? 'approved-text'
+
+        : appointment.status === 'Rejected'
+        ? 'rejected-text'
+
+        : appointment.status === 'Completed'
+        ? 'completed-text'
+
+        : 'pending-text'
+    }
+                    ">
+
+                        Status:
+                        ${appointment.status}
+
+                    </p>
+
+                    ${appointment.status === 'Pending'
+                     ? `
+                        <button
+                            class="approve"
+
+                            onclick="
+                                approveAppointment(
+                                    ${appointment.id}
+                                )
+                            "
+                        >
+                            Approve
+                        </button>
+
+                        <button
+                            class="reject"
+
+                            onclick="
+                                rejectAppointment(
+                                    ${appointment.id}
+                                )
+                            "
+                        >
+                            Reject
+                        </button>
+                    `
+                    : ''}
+
+                    ${appointment.status === 'Approved'
+                     ? `
+                        <button
+                            class="complete"
+
+                            onclick="
+                                completeAppointment(
+                                    ${appointment.id}
+                                )
+                            "
+                        >
+                            Complete
+                        </button>
+                    `
+                    : ''}
+
+                    ${appointment.status === 'Rejected'
+                    || appointment.status === 'Completed'
+                     ? `
+                        <button
+                            class="delete"
+
+                            onclick="
+                                deleteAppointment(
+                                    ${appointment.id}
+                                )
+                            "
+                        >
+                            Delete
+                        </button>
+                    `
+                    : ''}
+
+                </div>
+            `;
+    });
+
+        document.getElementById("results")
+        .innerHTML = html;
+    }
+
+        async function loadAppointments() {
+
+        const response = await fetch(
+        "http://localhost:8080/appointments"
+        );
+
+        const data = await response.json();
+
+            document.getElementById("totalCount")
+                .innerText = data.length;
+
+            document.getElementById("pendingCount")
+                .innerText =
+                data.filter(a =>
+                    a.status === "Pending"
+                ).length;
+
+            document.getElementById("approvedCount")
+                .innerText =
+                data.filter(a =>
+                    a.status === "Approved"
+                ).length;
+
+            document.getElementById("completedCount")
+                .innerText =
+                data.filter(a =>
+                    a.status === "Completed"
+                ).length;
+
+            if(data.length === 0){
+
+                document.getElementById("results")
+                    .innerHTML =
+                    `
+                    <div class="card">
+                        <h3>No Appointments Found</h3>
+                    </div>
+                    `;
+
+                return;
+            }
+
+            document.getElementById("rejectedCount")
+                .innerText =
+                data.filter(a =>
+                    a.status === "Rejected"
+                ).length;
+        displayAppointments(data);
+    }
+
+        async function approveAppointment(id) {
+
+        await fetch(
+            `http://localhost:8080/appointments/${id}/approve`,
+            {
+                method:"PUT"
+            }
+        );
+
+        loadAppointments();
+    }
+
+        async function rejectAppointment(id) {
+
+        await fetch(
+            `http://localhost:8080/appointments/${id}/reject`,
+            {
+                method:"PUT"
+            }
+        );
+
+        loadAppointments();
+    }
+
+        async function completeAppointment(id){
+
+        await fetch(
+            `http://localhost:8080/appointments/${id}/complete`,
+            {
+                method:"PUT"
+            }
+        );
+
+        alert("Appointment Completed");
+
+        loadAppointments();
+    }
+
+        async function deleteAppointment(id) {
+            if (confirm("Delete this appointment?")) {
+
+                await fetch(
+                    `http://localhost:8080/appointments/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                alert("Appointment Deleted");
+
+                loadAppointments();
+            }
+        }
+        async function filterStatus(status){
+
+        const response = await fetch(
+        "http://localhost:8080/appointments"
+        );
+
+        const data = await response.json();
+
+        const filtered =
+        data.filter(a => a.status === status);
+
+            if(filtered.length === 0){
+
+                document.getElementById("results")
+                    .innerHTML =
+                    `
+                <div class="card">
+                    <h3>No Appointments Found</h3>
+                    <p>Try another filter or create a new appointment.</p>
+                </div>
+                `;
+
+                return;
+            }
+
+            displayAppointments(filtered);
+    }
+
+        loadAppointments();
+
+</script>
+</body>
+</html>

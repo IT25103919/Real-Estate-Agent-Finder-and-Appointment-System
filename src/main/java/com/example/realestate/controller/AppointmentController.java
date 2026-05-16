@@ -2,12 +2,11 @@ package com.example.realestate.controller;
 
 import com.example.realestate.models.Appointment;
 import com.example.realestate.service.AppointmentService;
-
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@ResponseBody
-@RestController
+@Controller
 @RequestMapping("/appointments")
 @CrossOrigin("*")
 public class AppointmentController {
@@ -29,13 +28,20 @@ public class AppointmentController {
         return "appointments";
     }
 
+
+    @GetMapping("/listPage")
+    public String listPage() {return "appointments-list";
+    }
+
     // Create Appointment
+    @ResponseBody
     @PostMapping
     public Appointment createAppointment(@RequestBody Appointment appointment) {
         return appointmentService.createAppointment(appointment);
     }
 
     // Get All Appointments
+    @ResponseBody
     @GetMapping
     public List<Appointment> getAllAppointments() {
 
@@ -43,6 +49,7 @@ public class AppointmentController {
     }
 
     // Get Appointments By Client
+    @ResponseBody
     @GetMapping("/client/{clientId}")
     public List<Appointment> getByClient(@PathVariable String clientId) {
 
@@ -50,6 +57,7 @@ public class AppointmentController {
     }
 
     // Get Appointments By Agent
+    @ResponseBody
     @GetMapping("/agent/{agentId}")
     public List<Appointment> getByAgent(@PathVariable String agentId) {
 
@@ -57,6 +65,7 @@ public class AppointmentController {
     }
 
     // Approve Appointment
+    @ResponseBody
     @PutMapping("/{id}/approve")
     public Appointment approveAppointment(@PathVariable Long id) {
 
@@ -64,13 +73,23 @@ public class AppointmentController {
     }
 
     // Complete Appointment
+    @ResponseBody
     @PutMapping("/{id}/complete")
     public Appointment completeAppointment(@PathVariable Long id) {
 
         return appointmentService.completeAppointment(id);
     }
 
+    // Reject Appointment
+    @ResponseBody
+    @PutMapping("/{id}/reject")
+    public Appointment rejectAppointment(@PathVariable Long id) {
+
+        return appointmentService.rejectAppointment(id);
+    }
+
     // Delete Appointment
+    @ResponseBody
     @DeleteMapping("/{id}")
     public String deleteAppointment(@PathVariable Long id) {
 

@@ -75,4 +75,19 @@ public class AppointmentService {
 
         return appointmentRepository.save(appointment);
     }
+
+
+    public Appointment rejectAppointment(Long id){
+
+        Appointment appointment =
+                appointmentRepository.findById(id).orElseThrow();
+
+        appointment.setStatus("Rejected");
+
+        return appointmentRepository.save(appointment);
+    }
+
+
+
+
 }
