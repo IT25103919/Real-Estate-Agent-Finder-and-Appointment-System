@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2b6cb0; --primary-light: #ebf8ff;
+            --bg-color: #f0f4f8; --card-bg: #ffffff;
+            --border-color: #e2e8f0; --sidebar-w: 260px;
+            --success: #38a169; --danger: #e53e3e;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border-color); font-family: 'DM Serif Display', serif; color: var(--primary); font-size: 20px; }
+        .sidebar-nav { padding: 20px 0; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: #2d3748; text-decoration: none; font-weight: 500; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px; max-width: 900px; }
+        h1 { font-family: 'DM Serif Display', serif; font-size: 30px; margin-bottom: 4px; }
+        .subtitle { color: #718096; margin-bottom: 32px; }
+
+        /* PROFILE CARD */
+        .profile-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; display: flex; gap: 40px; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; }
+
+        /* AVATAR */
+        .avatar-section { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 160px; }
+        .avatar-wrap { position: relative; width: 140px; height: 140px; }
+        .avatar-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-light); background: #edf2f7; display: flex; align-items: center; justify-content: center; font-size: 56px; color: #a0aec0; }
+        .avatar-img img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; }
+        .avatar-edit-btn { position: absolute; bottom: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: var(--primary); border: 2px solid white; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .avatar-edit-btn:hover { background: #2c5282; }
+        #picInput { display: none; }
+        .pic-status { font-size: 12px; color: #718096; text-align: center; }
+
+        /* FORM */
+        .profile-form { flex: 1; min-width: 260px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #4a5568; }
+        .form-group input, .form-group select {
+            padding: 10px 12px; border: 1.5px solid var(--border-color);
+            border-radius: 8px; font-size: 14px; font-family: inherit;
+            outline: none; transition: 0.2s; background: white; color: #2d3748;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43,108,176,0.1); }
+        .form-group input:disabled { background: #f7fafc; color: #718096; cursor: not-allowed; }
+
+        /* BUTTONS */
+        .btn-save { background: var(--primary); color: white; border: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        .btn-save:hover { background: #2c5282; }
+
+        /* MESSAGE */
+        .msg-box { padding: 12px 16px; border-radius: 8px; font-weight: 500; font-size: 14px; margin-top: 16px; display: none; }
+        .msg-success { background: #c6f6d5; color: #22543d; }
+        .msg-error   { background: #fed7d7; color: #742a2a; }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .profile-card { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">EstateHub</div>
+    <nav class="sidebar-nav">
+        <a href="client-dashboard.html" class="nav-item"><i class="fa fa-chart-pie"></i> Dashboard</a>
+        <a href="properties.html" class="nav-item"><i class="fa fa-home"></i> Explore Properties</a>
+        <a href="inquiries.html" class="nav-item"><i class="fa fa-envelope"></i> My Inquiries</a>
+        <a href="notifications.html" class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
+        <a href="complaints.html" class="nav-item"><i class="fa fa-gavel"></i> File a Complaint</a>
+        <a href="client-profile.html" class="nav-item active"><i class="fa fa-user"></i> My Profile</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <h1>My Profile</h1>
+    <p class="subtitle">Update your personal information and profile picture.</p>
+
+    <div class="profile-card">
+
+        <!-- PROFILE PICTURE -->
+        <div class="avatar-section">
+            <div class="avatar-wrap">
+                <div class="avatar-img" id="avatarCircle">
+                    <i class="fa fa-user" id="avatarIcon"></i>
+                    <img id="avatarImg" alt="Profile Picture">
+                </div>
+                <button class="avatar-edit-btn" onclick="document.getElementById('picInput').click()" title="Change picture">
+                    <i class="fa fa-camera"></i>
+                </button>
+            </div>
+            <input type="file" id="picInput" accept="image/*" onchange="handlePicChange(event)">
+            <div class="pic-status" id="picStatus"></div>
+            <button class="btn-save" style="padding:8px 20px; font-size:13px; margin-top:4px" onclick="uploadPicture()">Save Picture</button>
+        </div>
+
+        <!-- PROFILE FORM -->
+        <div class="profile-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="fullName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <!-- Email is not editable for security -->
+                    <input type="email" id="email" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phone" placeholder="+94 77 123 4567">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Property Type</label>
+                    <select id="preferredPropertyType">
+                        <option value="">-- Select --</option>
+                        <option value="APARTMENT">Apartment</option>
+                        <option value="HOUSE">House</option>
+                        <option value="VILLA">Villa</option>
+                        <option value="LAND">Land</option>
+                        <option value="COMMERCIAL">Commercial</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="address" placeholder="123 Main Street, Colombo">
+            </div>
+
+            <button class="btn-save" onclick="saveProfile()">
+                <i class="fa fa-save"></i> Save Changes
+            </button>
+
+            <div class="msg-box" id="msgBox"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const clientId = localStorage.getItem('userId');
+    const API = 'http://localhost:8080/api/client/profile';
+    let newPictureBase64 = null;
+
+    // ── LOAD PROFILE ON PAGE OPEN ──
+    window.addEventListener('load', async () => {
+        if (!clientId) { window.location.href = 'login.html'; return; }
+        try {
+            const res    = await fetch(`${API}/${clientId}`);
+            const client = await res.json();
+
+            document.getElementById('fullName').value              = client.fullName || '';
+            document.getElementById('email').value                 = client.email    || '';
+            document.getElementById('phone').value                 = client.phone    || '';
+            document.getElementById('address').value               = client.address  || '';
+            document.getElementById('preferredPropertyType').value = client.preferredPropertyType || '';
+
+            // Show existing profile picture if saved
+            if (client.profilePicture) {
+                showAvatar(client.profilePicture);
+            }
+        } catch (err) {
+            showMsg('Could not load profile. Check server connection.', 'error');
+        }
+    });
+
+    // ── HANDLE FILE PICKED ──
+    function handlePicChange(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Warn if file is too large (> 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            document.getElementById('picStatus').textContent = '⚠️ Image should be under 2MB.';
+            document.getElementById('picStatus').style.color = 'var(--danger)';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            newPictureBase64 = e.target.result; // "data:image/png;base64,..."
+            showAvatar(newPictureBase64);
+            document.getElementById('picStatus').textContent = '📷 Ready to save.';
+            document.getElementById('picStatus').style.color = '#718096';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function showAvatar(base64) {
+        const img  = document.getElementById('avatarImg');
+        const icon = document.getElementById('avatarIcon');
+        img.src    = base64;
+        img.style.display  = 'block';
+        icon.style.display = 'none';
+    }
+
+    // ── UPLOAD PICTURE ──
+    async function uploadPicture() {
+        if (!newPictureBase64) {
+            document.getElementById('picStatus').textContent = 'Pick an image first.';
+            return;
+        }
+        try {
+            const res  = await fetch(`${API}/${clientId}/picture`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ profilePicture: newPictureBase64 })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                document.getElementById('picStatus').textContent = '✅ Picture saved!';
+                document.getElementById('picStatus').style.color = 'var(--success)';
+                newPictureBase64 = null;
+            } else {
+                document.getElementById('picStatus').textContent = '❌ ' + data.message;
+                document.getElementById('picStatus').style.color = 'var(--danger)';
+            }
+        } catch {
+            document.getElementById('picStatus').textContent = '❌ Server error.';
+            document.getElementById('picStatus').style.color = 'var(--danger)';
+        }
+    }
+
+    // ── SAVE PROFILE FIELDS ──
+    async function saveProfile() {
+        const body = {
+            fullName:              document.getElementById('fullName').value.trim(),
+            phone:                 document.getElementById('phone').value.trim(),
+            address:               document.getElementById('address').value.trim(),
+            preferredPropertyType: document.getElementById('preferredPropertyType').value
+        };
+
+        if (!body.fullName) { showMsg('Full name cannot be empty.', 'error'); return; }
+
+        try {
+            const res  = await fetch(`${API}/${clientId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                // Update the stored name so navbar/dashboard shows it correctly
+                localStorage.setItem('userName', body.fullName);
+                showMsg('✅ Profile updated successfully!', 'success');
+            } else {
+                showMsg('❌ ' + data.message, 'error');
+            }
+        } catch {
+            showMsg('❌ Could not connect to server.', 'error');
+        }
+    }
+
+    function showMsg(text, type) {
+        const box = document.getElementById('msgBox');
+        box.textContent = text;
+        box.className = 'msg-box ' + (type === 'success' ? 'msg-success' : 'msg-error');
+        box.style.display = 'block';
+        setTimeout(() => box.style.display = 'none', 4000);
+    }
+</script>
+</body>
+</html>

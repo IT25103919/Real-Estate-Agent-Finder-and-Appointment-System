@@ -1,7 +1,6 @@
 package com.example.realestate.service;
 
-
-
+import com.example.realestate.models.Admin;
 import com.example.realestate.models.Complaint;
 import com.example.realestate.models.User;
 import com.example.realestate.repositories.ComplaintRepository;
@@ -21,63 +20,51 @@ public class AdminService {
     @Autowired
     private ComplaintRepository complaintRepository;
 
-    // ── GET ALL USERS ──────────────────────────────
+    //  GET ALL USERS ─
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // ── DELETE A USER ──────────────────────────────
+    //  DELETE A USER
     public String deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            return "NOT_FOUND";
-        }
+        if (!userRepository.existsById(id)) return "NOT_FOUND";
         userRepository.deleteById(id);
         return "DELETED";
     }
 
-    // ── BAN A USER ─────────────────────────────────
+    //  BAN A USER
     public String banUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            return "NOT_FOUND";
-        }
+        if (userOpt.isEmpty()) return "NOT_FOUND";
         User user = userOpt.get();
         user.setStatus(User.Status.BANNED);
         userRepository.save(user);
         return "BANNED";
     }
 
-    // ── UNBAN A USER ───────────────────────────────
+    //  UNBAN A USER
     public String unbanUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            return "NOT_FOUND";
-        }
+        if (userOpt.isEmpty()) return "NOT_FOUND";
         User user = userOpt.get();
         user.setStatus(User.Status.ACTIVE);
         userRepository.save(user);
         return "UNBANNED";
     }
 
-    // ── APPROVE AN AGENT ───────────────────────────
+    // APPROVE AN AGENT
     public String approveAgent(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            return "NOT_FOUND";
-        }
+        if (userOpt.isEmpty()) return "NOT_FOUND";
         User user = userOpt.get();
-        // Only approve if the user is an AGENT
-        if (user.getRole() != User.Role.AGENT) {
-            return "NOT_AGENT";
-        }
+        if (user.getRole() != User.Role.AGENT) return "NOT_AGENT";
         user.setStatus(User.Status.ACTIVE);
         userRepository.save(user);
         return "APPROVED";
     }
 
-    // ── GET PENDING AGENTS ─────────────────────────
+    //  GET PENDING AGENTS
     public List<User> getPendingAgents() {
-        // Get all users, then filter only PENDING AGENTS
         return userRepository.findAll()
                 .stream()
                 .filter(u -> u.getRole() == User.Role.AGENT
@@ -85,17 +72,29 @@ public class AdminService {
                 .toList();
     }
 
-    // ── GET ALL COMPLAINTS ─────────────────────────
+    //  GET ALL COMPLAINTS
     public List<Complaint> getAllComplaints() {
         return complaintRepository.findAll();
     }
 
-    // ── DELETE / DISMISS A COMPLAINT ───────────────
+    //  DELETE / DISMISS A COMPLAINT
     public String deleteComplaint(Long id) {
-        if (!complaintRepository.existsById(id)) {
-            return "NOT_FOUND";
-        }
+        if (!complaintRepository.existsById(id)) return "NOT_FOUND";
         complaintRepository.deleteById(id);
         return "DELETED";
+    }
+
+    // NEW: CREATE ANOTHER ADMIN
+
+    public String createAdmin(Admin newAdmin) {
+        // Check email is not already taken
+        if (userRepository.existsByEmail(newAdmin.getEmail())) {
+            return "EMAIL_EXISTS";
+        }
+        // Force correct role and status regardless of what was sent
+        newAdmin.setRole(User.Role.ADMIN);
+        newAdmin.setStatus(User.Status.ACTIVE);
+        userRepository.save(newAdmin);
+        return "SUCCESS";
     }
 }

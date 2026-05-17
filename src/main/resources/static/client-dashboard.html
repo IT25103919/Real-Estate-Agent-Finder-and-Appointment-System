@@ -26,7 +26,15 @@
         .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
         .sidebar-footer { padding: 20px; border-top: 1px solid var(--border-color); background: #fcfcfc; }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--primary); }
+
+        /* CHANGE 1: avatar now supports a real photo when profile picture is saved */
+        .user-avatar {
+            width: 40px; height: 40px; background: var(--primary-light);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: var(--primary); overflow: hidden; flex-shrink: 0;
+        }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
         .logout-btn { margin-top: 12px; width: 100%; padding: 8px; background: white; border: 1px solid var(--border-color); color: #e53e3e; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .logout-btn:hover { background: #fed7d7; }
         .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; }
@@ -53,9 +61,12 @@
         <a href="inquiries.html" class="nav-item"><i class="fa fa-envelope"></i> My Inquiries</a>
         <a href="notifications.html" class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
         <a href="complaints.html" class="nav-item"><i class="fa fa-gavel"></i> File a Complaint</a>
+        <!-- CHANGE 2: My Profile link added to sidebar -->
+        <a href="client-profile.html" class="nav-item"><i class="fa fa-user"></i> My Profile</a>
     </nav>
     <div class="sidebar-footer">
         <div class="user-info">
+            <!-- CHANGE 1: avatar shows profile picture if the client has uploaded one -->
             <div class="user-avatar" id="userAvatar">C</div>
             <div>
                 <div class="user-name" id="clientName">Client Name</div>
@@ -95,16 +106,38 @@
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const name = localStorage.getItem('userName') || 'Client';
-      document.getElementById('clientName').textContent = name;
-      document.getElementById('greeting').textContent = `Welcome Back, ${name}!`;
-      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    document.addEventListener('DOMContentLoaded', async () => {
+        const name     = localStorage.getItem('userName') || 'Client';
+        const clientId = localStorage.getItem('userId');
+
+        document.getElementById('clientName').textContent  = name;
+        document.getElementById('greeting').textContent    = `Welcome Back, ${name}!`;
+
+        // CHANGE 1: load profile picture from backend and show it in the sidebar avatar.
+        // If no picture is saved, fall back to the first letter of the name (original behaviour).
+        const avatarDiv = document.getElementById('userAvatar');
+        if (clientId) {
+            try {
+                const res    = await fetch(`http://localhost:8080/api/client/profile/${clientId}`);
+                const client = await res.json();
+                if (client.profilePicture) {
+                    // Replace the letter with an actual photo
+                    avatarDiv.innerHTML = `<img src="${client.profilePicture}" alt="avatar">`;
+                } else {
+                    avatarDiv.textContent = name.charAt(0).toUpperCase();
+                }
+            } catch {
+                // Server not reachable — just show the letter
+                avatarDiv.textContent = name.charAt(0).toUpperCase();
+            }
+        } else {
+            avatarDiv.textContent = name.charAt(0).toUpperCase();
+        }
     });
 
     function logout() {
-      localStorage.clear();
-      window.location.href = 'login.html';
+        localStorage.clear();
+        window.location.href = 'login.html';
     }
 </script>
 </body>
