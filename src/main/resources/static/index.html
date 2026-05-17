@@ -3,177 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Real Estate</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>EstateHub - Welcome</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
     <style>
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            margin: 0;
-            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* ONLY LOGO IMPROVED */
+        .logo {
+            position: absolute;
+            top: 28px;
+            left: 40px;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #c9a84c, #f2d27b);
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            border: 2px solid rgba(255,255,255,0.15);
         }
 
-        .login-card {
-            background: #ffffff;
-            padding: 40px 50px;
-            border-radius: 20px;
-            border: 2px solid #2b6cb0;
-            box-shadow: 0 10px 30px rgba(43, 108, 176, 0.1);
+        .logo-box span {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f1f3d;
+            font-family: 'DM Serif Display', serif;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h2 {
+            color: white;
+            font-size: 30px;
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .logo-text p {
+            color: #d9b75d;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 550px;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
         }
 
-        h2 { color: #2b6cb0; font-size: 28px; margin-bottom: 25px; }
-
-        /* Role Selection Styling */
-        .role-selection {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            gap: 10px;
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 31, 61, 0.5);
+            z-index: 1;
         }
 
-        .role-option {
-            flex: 1;
+        .slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .content {
             position: relative;
-        }
-
-        .role-option input[type="radio"] {
-            display: none; /* Original radio button eka hide karanawa */
-        }
-
-        .role-option label {
-            display: block;
-            padding: 12px;
-            background: #f7fafc;
-            border: 2px solid #edf2f7;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-            transition: all 0.2s;
-        }
-
-        /* Select kalama ena style eka */
-        .role-option input[type="radio"]:checked + label {
-            border-color: #2b6cb0;
-            background-color: #ebf8ff;
-            color: #2b6cb0;
-        }
-
-        .input-group { text-align: left; margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
-
-        input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 14px;
-            border: 1.5px solid #cbd5e0;
-            border-radius: 10px;
-            font-size: 15px;
-        }
-
-        input:focus { outline: none; border-color: #2b6cb0; }
-
-        button {
-            width: 100%;
-            padding: 16px;
-            background-color: #2b6cb0;
+            z-index: 20;
             color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
+            padding: 20px;
         }
 
-        #message { margin-top: 15px; font-size: 14px; }
-        .error { color: #e53e3e; }
-        .success { color: #38a169; }
+        .content h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 64px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1s ease 0.5s;
+        }
+
+        .content p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1s ease 0.7s;
+        }
+
+        .slide.active .content h1,
+        .slide.active .content p {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .btn-login {
+            position: relative;
+            z-index: 20;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f1f3d;
+            background-color: #c9a84c;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1s ease 0.9s;
+        }
+
+        .slide.active .btn-login {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .btn-login:hover {
+            background-color: #e8c97a;
+            transform: translateY(-3px) scale(1.02) !important;
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="login-card">
-    <h2>🏠 Real Estate Login</h2>
-
-    <!-- Role Selection (Tic danna thana) -->
-    <div class="role-selection">
-        <div class="role-option">
-            <input type="radio" id="client" name="role" value="CLIENT" checked>
-            <label for="client">Client</label>
-        </div>
-        <div class="role-option">
-            <input type="radio" id="agent" name="role" value="AGENT">
-            <label for="agent">Agent</label>
-        </div>
-        <div class="role-option">
-            <input type="radio" id="admin" name="role" value="ADMIN">
-            <label for="admin">Admin</label>
-        </div>
+<!-- BEAUTIFUL LOGO ONLY -->
+<div class="logo">
+    <div class="logo-box">
+        <span>EH</span>
     </div>
 
-    <div class="input-group">
-        <label>Email Address</label>
-        <input type="email" id="email" placeholder="email@example.com">
+    <div class="logo-text">
+        <h2>EstateHub</h2>
+        <p>Luxury Real Estate</p>
     </div>
-
-    <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••">
-    </div>
-
-    <button onclick="doLogin()">Login</button>
-
-    <div id="message"></div>
 </div>
 
+<div class="slider-container" id="slider"></div>
+
 <script>
-    async function doLogin() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      // Select karapu role eka ganna widiya
-      const role = document.querySelector('input[name="role"]:checked').value;
-      const msgDiv = document.getElementById('message');
-
-      if (!email || !password) {
-        msgDiv.innerHTML = '<span class="error">Please fill in all fields.</span>';
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:8080/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          // Api role ekath backend ekata yawanna puluwan ona nam
-          body: JSON.stringify({ email, password, role })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          localStorage.setItem('userRole', data.role);
-          localStorage.setItem('userName', data.name);
-          msgDiv.innerHTML = '<span class="success">Login successful!</span>';
-
-          setTimeout(() => {
-            if (data.role === 'ADMIN') window.location.href = 'admin-dashboard.html';
-            else if (data.role === 'AGENT') window.location.href = 'agent-dashboard.html';
-            else window.location.href = 'client-dashboard.html';
-          }, 1000);
-        } else {
-          msgDiv.innerHTML = `<span class="error">${data.message}</span>`;
+    const slidesData = [
+        {
+            image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80',
+            title: 'Find Your Dream Home',
+            desc: 'Discover luxury properties tailored to your lifestyle.'
+        },
+        {
+            image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80',
+            title: 'Modern Architecture',
+            desc: 'Experience the best of contemporary real estate and design.'
+        },
+        {
+            image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80',
+            title: 'Exclusive Neighborhoods',
+            desc: 'Premium locations for you and your family to thrive.'
         }
-      } catch (err) {
-        msgDiv.innerHTML = '<span class="error">Server error!</span>';
-      }
-    }
+    ];
+
+    const slider = document.getElementById('slider');
+
+    slidesData.forEach((slide, index) => {
+        const slideDiv = document.createElement('div');
+
+        slideDiv.className = `slide ${index === 0 ? 'active' : ''}`;
+
+        slideDiv.style.backgroundImage = `url(${slide.image})`;
+
+        slideDiv.innerHTML = `
+            <div class="content">
+                <h1>${slide.title}</h1>
+                <p>${slide.desc}</p>
+                <a href="login.html" class="btn-login">
+                    Login to Portal ➔
+                </a>
+            </div>
+        `;
+
+        slider.appendChild(slideDiv);
+    });
+
+    let currentSlide = 0;
+
+    const slideElements = document.querySelectorAll('.slide');
+
+    setInterval(() => {
+
+        slideElements[currentSlide].classList.remove('active');
+
+        currentSlide =
+            (currentSlide + 1) % slideElements.length;
+
+        slideElements[currentSlide].classList.add('active');
+
+    }, 5000);
 </script>
 
 </body>

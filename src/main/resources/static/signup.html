@@ -3,128 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Elite Estates</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Sign Up - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body {
-            margin: 0;
+            background-color: #f0f4f8;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #ffffff;
             padding: 20px;
+            color: #2d3748;
         }
-
-        .signup-card {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 20px;
-            border: 2px solid #2b6cb0;
-            box-shadow: 0 10px 30px rgba(43, 108, 176, 0.1);
-            width: 100%;
-            max-width: 600px; /* Fields wadi nisa tikak loku kala */
-            text-align: center;
-        }
-
-        h2 { color: #2b6cb0; font-size: 28px; margin-bottom: 10px; }
-        p.subtitle { color: #718096; margin-bottom: 30px; font-size: 14px; }
-
-        /* Role Selection Styling */
-        .role-container {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        .role-label {
-            font-size: 14px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: block;
-        }
-        .role-selection {
+        .main-container {
             display: flex;
-            gap: 15px;
-        }
-        .role-option { flex: 1; position: relative; }
-        .role-option input[type="radio"] { display: none; }
-        .role-option label {
-            display: block;
-            padding: 12px;
-            background: #f7fafc;
-            border: 2px solid #edf2f7;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        .role-option input[type="radio"]:checked + label {
-            border-color: #2b6cb0;
-            background-color: #ebf8ff;
-            color: #2b6cb0;
-        }
-
-        /* Form Grid */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Side by side danna */
-            gap: 20px;
-            text-align: left;
-        }
-
-        /* Mobile waladi 1 column wenna */
-        @media (max-width: 480px) {
-            .form-grid { grid-template-columns: 1fr; }
-        }
-
-        .input-group { margin-bottom: 5px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
-
-        input {
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
             width: 100%;
-            padding: 14px;
-            border: 1.5px solid #cbd5e0;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: border 0.3s;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(43, 108, 176, 0.15);
+            border: 1px solid #e2e8f0;
         }
-
-        input:focus { outline: none; border-color: #2b6cb0; }
-
-        button {
-            width: 100%;
-            padding: 16px;
-            background-color: #2b6cb0;
+        .image-panel {
+            flex: 1;
+            background: linear-gradient(to bottom, rgba(43, 108, 176, 0.3), rgba(43, 108, 176, 0.8)),
+                        url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80') center/cover;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
             color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: background 0.3s;
         }
-
-        button:hover { background-color: #2c5282; }
-
-        #message { margin-top: 20px; font-size: 14px; }
-        .error { color: #e53e3e; }
-        .success { color: #38a169; }
-
-        .login-link { margin-top: 20px; font-size: 14px; color: #718096; }
-        .login-link a { color: #2b6cb0; text-decoration: none; font-weight: 600; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .logo { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: bold; letter-spacing: 1px; }
+        .back-link {
+            background: rgba(255,255,255,0.2); color: white; text-decoration: none;
+            padding: 8px 16px; border-radius: 20px; font-size: 13px;
+            backdrop-filter: blur(5px); transition: 0.3s; font-weight: 500;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        .image-text { text-align: center; z-index: 10; margin-bottom: 20px; }
+        .image-text h2 { font-size: 32px; font-weight: 600; margin-bottom: 15px; font-family: 'DM Serif Display', serif; }
+        .dots { display: flex; justify-content: center; gap: 8px; }
+        .dot { width: 30px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; }
+        .dot.active { background: white; }
+        .form-panel {
+            flex: 1; padding: 50px 45px;
+            display: flex; flex-direction: column; justify-content: center;
+            background-color: #ffffff;
+        }
+        .form-header { margin-bottom: 25px; text-align: center; }
+        .form-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #2b6cb0; }
+        .form-header p { font-size: 14px; color: #718096; }
+        .form-header a { color: #2b6cb0; text-decoration: none; font-weight: 600; }
+        .form-header a:hover { text-decoration: underline; }
+        .role-selection { display: flex; gap: 10px; margin-bottom: 20px; }
+        .role-option { flex: 1; }
+        .role-option input { display: none; }
+        .role-option label {
+            display: block; width: 100%; text-align: center; padding: 12px;
+            background: #f7fafc; border: 2px solid #edf2f7;
+            border-radius: 10px; font-size: 14px; color: #4a5568; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+        }
+        .role-option input:checked + label { background: #ebf8ff; border-color: #2b6cb0; color: #2b6cb0; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .input-group { flex: 1; }
+        .input-group label, .form-panel > label {
+            display: block; font-size: 13px; font-weight: 600; color: #4a5568;
+            margin-bottom: 5px; text-align: left;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 14px;
+            background: #ffffff; border: 1.5px solid #cbd5e0;
+            border-radius: 10px; color: #2d3748; font-size: 15px; outline: none; transition: 0.3s;
+            margin-bottom: 15px;
+        }
+        input::placeholder { color: #a0aec0; }
+        input:focus { border-color: #2b6cb0; box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1); }
+        .terms { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #4a5568; margin-bottom: 25px; }
+        .terms input { width: 16px; height: 16px; accent-color: #2b6cb0; cursor: pointer; }
+        .terms a { color: #2b6cb0; text-decoration: none; font-weight: 600; }
+        .terms a:hover { text-decoration: underline; }
+        .btn-submit {
+            width: 100%; padding: 16px; background: #2b6cb0; color: white;
+            border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-submit:hover { background: #2c5282; }
+        #message { margin-top: 15px; font-size: 14px; text-align: center; }
+        .error { color: #e53e3e; font-weight: 500; }
+        .success { color: #38a169; font-weight: 500; }
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .image-panel { min-height: 250px; }
+            .input-row { flex-direction: column; gap: 0; }
+        }
     </style>
 </head>
 <body>
 
-<div class="signup-card">
-    <h2>Create Account</h2>
-    <p class="subtitle">Join our real estate community today</p>
+<div class="main-container">
+    <div class="image-panel">
+        <div class="top-bar">
+            <div class="logo">EstateHub</div>
+            <a href="index.html" class="back-link">Back to website ➔</a>
+        </div>
+        <div class="image-text">
+            <h2>Finding Properties,<br>Creating Homes</h2>
+            <div class="dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Role Selection -->
-    <div class="role-container">
-        <span class="role-label">I am a:</span>
+    <div class="form-panel">
+        <div class="form-header">
+            <h1>Create Account</h1>
+            <p>Already have an account? <a href="login.html">Log in</a></p>
+        </div>
+
         <div class="role-selection">
             <div class="role-option">
                 <input type="radio" id="client" name="role" value="CLIENT" checked>
@@ -135,58 +138,62 @@
                 <label for="agent">Real Estate Agent</label>
             </div>
         </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName" placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="johnny99">
+            </div>
+        </div>
+
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="john@example.com">
+
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••">
+
+        <div class="terms">
+            <input type="checkbox" id="agree">
+            <label for="agree">I agree to the <a href="#">Terms & Conditions</a></label>
+        </div>
+
+        <button class="btn-submit" onclick="doSignUp()">Create Account</button>
+        <div id="message"></div>
     </div>
-
-    <!-- Input Fields Grid -->
-    <div class="form-grid">
-        <div class="input-group">
-            <label>Full Name</label>
-            <input type="text" id="fullName" placeholder="John Doe">
-        </div>
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" id="username" placeholder="johnny99">
-        </div>
-        <div class="input-group">
-            <label>Email Address</label>
-            <input type="email" id="email" placeholder="john@example.com">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="••••••••">
-        </div>
-    </div>
-
-    <button onclick="doSignUp()">Create Account</button>
-
-    <div id="message"></div>
-
-    <p class="login-link">
-        Already have an account? <a href="login.html">Login</a>
-    </p>
 </div>
 
 <script>
     async function doSignUp() {
         const fullName = document.getElementById('fullName').value;
         const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
+        const email    = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const role = document.querySelector('input[name="role"]:checked').value;
+        const role     = document.querySelector('input[name="role"]:checked').value;
+        const agree    = document.getElementById('agree').checked;
+        const msgDiv   = document.getElementById('message');
 
-        const msgDiv = document.getElementById('message');
-
+        if (!agree) {
+            msgDiv.innerHTML = '<span class="error">You must agree to the Terms & Conditions.</span>';
+            return;
+        }
         if (!fullName || !username || !email || !password) {
             msgDiv.innerHTML = '<span class="error">Please fill in all fields.</span>';
             return;
         }
 
         const signupData = {
-            name: fullName,
-            username: username,
-            email: email,
+            // FIX: was sending "name" but User.java has the field as "fullName".
+            // Spring maps JSON keys to Java field names, so this must match exactly.
+            fullName: fullName,
+            email:    email,
             password: password,
-            role: role
+            role:     role
+            // Note: "username" is not a field on the base User class.
+            // If you want to store it, add a username field to User.java.
         };
 
         try {
@@ -199,16 +206,19 @@
             const data = await response.json();
 
             if (data.status === 'success') {
-                msgDiv.innerHTML = '<span class="success">Registration successful! Please login.</span>';
-                setTimeout(() => window.location.href = 'login.html', 2000);
+                if (role === 'AGENT') {
+                    msgDiv.innerHTML = '<span class="success">✅ Account created! Please wait for admin approval.</span>';
+                } else {
+                    msgDiv.innerHTML = '<span class="success">✅ Account created! Redirecting to login...</span>';
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                }
             } else {
-                msgDiv.innerHTML = `<span class="error">${data.message}</span>`;
+                msgDiv.innerHTML = `<span class="error">❌ ${data.message}</span>`;
             }
         } catch (err) {
-            msgDiv.innerHTML = '<span class="error">Connection failed. Check your server.</span>';
+            msgDiv.innerHTML = '<span class="error">❌ Connection failed. Check your server.</span>';
         }
     }
 </script>
-
 </body>
 </html>

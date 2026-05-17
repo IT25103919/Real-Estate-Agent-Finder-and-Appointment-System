@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File a Complaint - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --primary: #2b6cb0; --primary-light: #ebf8ff;
+          --bg-color: #f0f4f8; --card-bg: #ffffff; --border-color: #e2e8f0; --sidebar-w: 260px;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); display: flex; min-height: 100vh; }
+        .sidebar { width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border-color); font-family: 'DM Serif Display', serif; color: var(--primary); font-size: 20px; }
+        .sidebar-nav { padding: 20px 0; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: #2d3748; text-decoration: none; font-weight: 500; }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
+        .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; }
+        .form-container { background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 600px; margin-top: 20px; }
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-weight: 600; color: #2d3748; }
+        .form-group input, .form-group textarea { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; outline: none; }
+        .btn-submit { background: #e53e3e; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #c53030; }
+        .message { padding: 12px; border-radius: 6px; display: none; font-weight: 500; margin-bottom: 15px; }
+        .success { background: #c6f6d5; color: #22543d; }
+        .error { background: #fed7d7; color: #742a2a; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">EstateHub</div>
+    <nav class="sidebar-nav">
+        <a href="client-dashboard.html" class="nav-item"><i class="fa fa-chart-pie"></i> Dashboard</a>
+        <a href="properties.html" class="nav-item"><i class="fa fa-home"></i> Explore Properties</a>
+        <a href="inquiries.html" class="nav-item"><i class="fa fa-envelope"></i> My Inquiries</a>
+        <a href="notifications.html" class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
+        <a href="complaints.html" class="nav-item active"><i class="fa fa-gavel"></i> File a Complaint</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <h1 style="font-family: 'DM Serif Display', serif; font-size: 28px;">File a Complaint</h1>
+    <p style="color:#718096; margin-bottom: 20px;">Submit your complaint against an agent here.</p>
+
+    <div class="form-container">
+        <div id="msgBox" class="message"></div>
+        <form id="complaintForm">
+            <div class="form-group">
+                <label for="agentId">Agent ID</label>
+                <input type="number" id="agentId" placeholder="Enter the Agent's ID" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Complaint Description</label>
+                <textarea id="description" rows="5" placeholder="Describe what happened clearly..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fa fa-paper-plane"></i> Submit Complaint</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    document.getElementById('complaintForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const clientId    = localStorage.getItem('userId');
+        const agentId     = document.getElementById('agentId').value;
+        const description = document.getElementById('description').value;
+        const msgBox      = document.getElementById('msgBox');
+
+        if (!clientId) {
+            msgBox.className = 'message error';
+            msgBox.textContent = 'Please log in first before submitting a complaint.';
+            msgBox.style.display = 'block';
+            return;
+        }
+
+        // FIX: Previously sent nested objects { client:{id:...}, agent:{id:...} }
+        // to /api/complaints (the old broken controller).
+        // Now sends flat clientId/agentId fields to /api/client/complaints,
+        // which maps directly to ComplaintRequest.java and is handled by
+        // ClientController → ComplaintService → fileComplaint().
+        // This endpoint also validates that both IDs exist in the DB first.
+        const complaintData = {
+            clientId:    parseInt(clientId),
+            agentId:     parseInt(agentId),
+            description: description
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/client/complaints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(complaintData)
+            });
+
+            if (response.ok) {
+                msgBox.className = 'message success';
+                msgBox.textContent = '✅ Complaint submitted successfully! The admin will review it.';
+                msgBox.style.display = 'block';
+                document.getElementById('complaintForm').reset();
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                msgBox.className = 'message error';
+                msgBox.textContent = '❌ Error: ' + (errData.message || 'Could not submit complaint.');
+                msgBox.style.display = 'block';
+            }
+        } catch (error) {
+            msgBox.className = 'message error';
+            msgBox.textContent = '❌ Cannot connect to the backend. Please check the server.';
+            msgBox.style.display = 'block';
+            console.error('Error:', error);
+        }
+    });
+</script>
+</body>
+</html>
