@@ -1,5 +1,7 @@
 package com.example.realestate.service;
 
+import com.example.realestate.models.Agent;
+import com.example.realestate.models.Client;
 import com.example.realestate.models.User;
 import com.example.realestate.repositories.UserRepository;
 
@@ -15,36 +17,57 @@ public class UserService {
     private UserRepository userRepository;
 
     // REGISTER a new user
+    // ROOT CAUSE FIX: Previously this saved every user as a plain User object.
+    // With JOINED inheritance, a Client must be saved as a Client instance
+    // (so a row is created in both the `user` table AND the `client` table).
+    // Same for Agent → `agent` table. Without this, complaint lookups fail
+    // because Hibernate JOINs to the `client` / `agent` sub-tables and finds nothing.
     public String register(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             return "EMAIL_EXISTS";
         }
 
-        // If the person is registering as an AGENT,
-        // set their status to PENDING (needs admin approval)
-        // If CLIENT or ADMIN, set to ACTIVE straight away
+        User toSave;
+
         if (user.getRole() == User.Role.AGENT) {
-            user.setStatus(User.Status.PENDING);
+            // Create an Agent instance so the `agent` sub-table gets a row
+            Agent agent = new Agent();
+            agent.setFullName(user.getFullName());
+            agent.setEmail(user.getEmail());
+            agent.setPassword(user.getPassword());
+            agent.setRole(User.Role.AGENT);
+            agent.setStatus(User.Status.PENDING); // needs admin approval
+            toSave = agent;
+
+        } else if (user.getRole() == User.Role.CLIENT) {
+            // Create a Client instance so the `client` sub-table gets a row
+            Client client = new Client();
+            client.setFullName(user.getFullName());
+            client.setEmail(user.getEmail());
+            client.setPassword(user.getPassword());
+            client.setRole(User.Role.CLIENT);
+            client.setStatus(User.Status.ACTIVE);
+            toSave = client;
+
         } else {
+            // ADMIN or anything else — save as plain User
             user.setStatus(User.Status.ACTIVE);
+            toSave = user;
         }
 
-        // Save password as plain text (no hashing)
-        userRepository.save(user);
+        userRepository.save(toSave);
         return "SUCCESS";
     }
 
-    // LOGIN - directly compare plain text passwords
+    // LOGIN - plain text password comparison (unchanged)
     public User login(String email, String password) {
         Optional<User> userOpt = userRepository.findByEmail(email);
-
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            // Simple string comparison
             if (user.getPassword().equals(password)) {
-                return user;  // login success
+                return user;
             }
         }
-        return null;  // login failed
+        return null;
     }
 }

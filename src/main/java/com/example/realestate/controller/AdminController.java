@@ -20,14 +20,13 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    // GET ALL USERS (with their IDs)
-    // Returns all user fields including id, so admin can see every user's ID
+
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
     }
 
-    // DELETE A USER
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
@@ -42,7 +41,7 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    // BAN A USER
+
     @PutMapping("/users/{id}/ban")
     public ResponseEntity<Map<String, String>> banUser(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
@@ -57,7 +56,7 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    //  UNBAN A USER
+
     @PutMapping("/users/{id}/unban")
     public ResponseEntity<Map<String, String>> unbanUser(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
@@ -72,7 +71,7 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    //  APPROVE AN AGENT
+
     @PutMapping("/users/{id}/approve")
     public ResponseEntity<Map<String, String>> approveAgent(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
@@ -92,13 +91,12 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    //  GET PENDING AGENTS
+
     @GetMapping("/agents/pending")
     public ResponseEntity<List<User>> getPendingAgents() {
         return ResponseEntity.ok(adminService.getPendingAgents());
     }
-
-    //  GET ALL COMPLAINTS
+//  GET ALL COMPLAINTS
     @GetMapping("/complaints")
     public ResponseEntity<List<Complaint>> getAllComplaints() {
         return ResponseEntity.ok(adminService.getAllComplaints());

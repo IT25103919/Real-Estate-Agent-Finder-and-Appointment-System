@@ -1,6 +1,7 @@
 package com.example.realestate.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,19 +12,22 @@ public class Complaint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // JoinColumn   is explane what is the coloum name to be create in database
-    @ManyToOne
+    // FIX: Added @JsonIgnoreProperties at the field level to prevent Jackson
+    // from trying to serialize Hibernate proxy internals, which caused
+    // serialization to silently fail and return an empty response.
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
     private Client client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agent_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
     private Agent agent;
 
     @Column(nullable = false, length = 1000)
     private String description;
 
-    //Check the status of the complaint
     @Enumerated(EnumType.STRING)
     private ComplaintStatus status = ComplaintStatus.PENDING;
 
@@ -38,45 +42,19 @@ public class Complaint {
 
     public Complaint() {}
 
-    // --- Getters and Setters ---
+    public Long getId() { return id; }
 
-    public Long getId() {
-        return id;
-    }
+    public Client getClient() { return client; }
+    public void setClient(Client client) { this.client = client; }
 
-    public Client getClient() {
-        return client;
-    }
+    public Agent getAgent() { return agent; }
+    public void setAgent(Agent agent) { this.agent = agent; }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public Agent getAgent() {
-        return agent;
-    }
+    public ComplaintStatus getStatus() { return status; }
+    public void setStatus(ComplaintStatus status) { this.status = status; }
 
-    public void setAgent(Agent agent) {
-        this.agent = agent;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ComplaintStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ComplaintStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }
