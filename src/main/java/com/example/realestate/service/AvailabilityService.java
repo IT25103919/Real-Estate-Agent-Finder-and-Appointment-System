@@ -30,7 +30,6 @@ public class AvailabilityService {
         return repository.findByAgentId(agentId);
     }
 
-
     public void deleteAvailability(Long id) {
         repository.deleteById(id);
     }
