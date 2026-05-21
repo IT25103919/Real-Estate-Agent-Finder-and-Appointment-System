@@ -206,7 +206,7 @@
         icon.style.display = 'none';
     }
 
-    // ── UPLOAD PICTURE ──
+
     async function uploadPicture() {
         if (!newPictureBase64) {
             document.getElementById('picStatus').textContent = 'Pick an image first.';
@@ -233,7 +233,7 @@
         }
     }
 
-    // ── SAVE PROFILE FIELDS ──
+
     async function saveProfile() {
         const body = {
             fullName:              document.getElementById('fullName').value.trim(),

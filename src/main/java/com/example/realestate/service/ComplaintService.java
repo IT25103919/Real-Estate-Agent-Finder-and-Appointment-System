@@ -26,13 +26,13 @@ public class ComplaintService {
 
     public String fileComplaint(ComplaintRequest request) {
 
-        // Check client exists in the client table
+
         Optional<Client> clientOpt = clientRepository.findById(request.getClientId());
         if (clientOpt.isEmpty()) {
             return "CLIENT_NOT_FOUND";
         }
 
-        // Check agent exists in the agent table
+
         Optional<Agent> agentOpt = agentRepository.findById(request.getAgentId());
         if (agentOpt.isEmpty()) {
             return "AGENT_NOT_FOUND";

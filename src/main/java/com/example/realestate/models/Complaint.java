@@ -39,7 +39,7 @@ public class Complaint {
         RESOLVED,
         REJECTED
     }
-
+//getters &setters
     public Complaint() {}
 
     public Long getId() { return id; }

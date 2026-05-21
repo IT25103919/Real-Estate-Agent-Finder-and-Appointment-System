@@ -22,6 +22,7 @@ public class Admin extends User {
         ADMIN
     }
 
+
     public Admin() {}
 
     public String getUsername() {

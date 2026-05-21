@@ -5,7 +5,7 @@ public class ComplaintRequest {
     private Long agentId;
     private String description;
 
-    // --- Getters and Setters ---
+
     public Long getClientId() { return clientId; }
     public void setClientId(Long clientId) { this.clientId = clientId; }
 

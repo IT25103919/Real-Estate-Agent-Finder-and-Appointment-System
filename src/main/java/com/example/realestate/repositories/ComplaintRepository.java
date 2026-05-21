@@ -4,5 +4,5 @@ import com.example.realestate.models.Complaint;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
-    // JpaRepository gives us findAll(), findById(), deleteById() for free!
+
 }

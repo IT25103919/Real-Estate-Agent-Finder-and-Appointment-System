@@ -20,12 +20,12 @@ public class AdminService {
     @Autowired
     private ComplaintRepository complaintRepository;
 
-    //  GET ALL USERS ─
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    //  DELETE A USER
+
     public String deleteUser(Long id) {
         if (!userRepository.existsById(id)) return "NOT_FOUND";
         userRepository.deleteById(id);

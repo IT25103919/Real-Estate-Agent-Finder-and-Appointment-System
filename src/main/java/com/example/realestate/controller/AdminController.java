@@ -96,13 +96,13 @@ public class AdminController {
     public ResponseEntity<List<User>> getPendingAgents() {
         return ResponseEntity.ok(adminService.getPendingAgents());
     }
-//  GET ALL COMPLAINTS
+
     @GetMapping("/complaints")
     public ResponseEntity<List<Complaint>> getAllComplaints() {
         return ResponseEntity.ok(adminService.getAllComplaints());
     }
 
-    //  DISMISS A COMPLAINT
+
     @DeleteMapping("/complaints/{id}")
     public ResponseEntity<Map<String, String>> deleteComplaint(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
@@ -117,7 +117,7 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    //  NEW: CREATE ANOTHER ADMIN
+
 
     @PostMapping("/admins")
     public ResponseEntity<Map<String, String>> createAdmin(@RequestBody Admin newAdmin) {

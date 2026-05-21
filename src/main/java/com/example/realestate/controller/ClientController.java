@@ -17,8 +17,7 @@ public class ClientController {
     @Autowired
     private ComplaintService complaintService;
 
-    // POST /api/client/complaints
-    // Body: { "clientId": 4, "agentId": 5, "description": "..." }
+
     @PostMapping("/complaints")
     public ResponseEntity<Map<String, String>> fileComplaint(@RequestBody ComplaintRequest request) {
         Map<String, String> response = new HashMap<>();

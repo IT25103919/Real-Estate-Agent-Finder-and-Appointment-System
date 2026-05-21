@@ -128,9 +128,7 @@
                     } else if (data.role === 'AGENT') {
                         window.location.href = 'agent-dashboard.html';
                     } else {
-                        // FIX: check if client was trying to visit a specific page
-                        // before being redirected to login. If yes, go there instead
-                        // of always going to the dashboard.
+
                         const redirect = localStorage.getItem('redirectAfterLogin');
                         localStorage.removeItem('redirectAfterLogin'); // clear it after use
                         window.location.href = redirect || 'client-dashboard.html';

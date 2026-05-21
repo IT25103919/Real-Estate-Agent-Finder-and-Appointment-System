@@ -18,7 +18,7 @@ public class ClientProfileController {
     @Autowired
     private ClientRepository clientRepository;
 
-    //  GET PROFILE
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfile(@PathVariable Long id) {
@@ -32,7 +32,7 @@ public class ClientProfileController {
         return ResponseEntity.ok(clientOpt.get());
     }
 
-    //  EDIT PROFILE
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, String>> updateProfile(
@@ -63,7 +63,7 @@ public class ClientProfileController {
         return ResponseEntity.ok(response);
     }
 
-    //  UPLOAD / UPDATE PROFILE PICTURE
+
 
     @PutMapping("/{id}/picture")
     public ResponseEntity<Map<String, String>> updatePicture(
