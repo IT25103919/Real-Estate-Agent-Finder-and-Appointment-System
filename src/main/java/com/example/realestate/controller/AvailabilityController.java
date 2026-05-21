@@ -46,8 +46,7 @@ public class AvailabilityController {
     public String listPage() {
         return "availability-list";
     }
-
-
+    
     @ResponseBody
     @DeleteMapping("/{id}")
     public String deleteAvailability(
