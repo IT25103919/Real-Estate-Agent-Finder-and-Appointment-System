@@ -17,7 +17,6 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-
     @GetMapping("/bookingPage")
     public String bookingPage() {
         return "booking";
