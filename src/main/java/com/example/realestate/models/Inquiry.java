@@ -11,12 +11,10 @@ public class Inquiry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // වෙනස් කළ කොටස: Client සමඟ Many-to-One සම්බන්ධතාවය
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    // වෙනස් කළ කොටස: Agent සමඟ Many-to-One සම්බන්ධතාවය
     @ManyToOne
     @JoinColumn(name = "agent_id", nullable = false)
     private Agent agent;
@@ -36,11 +34,9 @@ public class Inquiry {
     @Column(name = "replied_at")
     private LocalDateTime repliedAt;
 
-    // Default Constructor
     public Inquiry() {
     }
 
-    // All-Args Constructor (අලුත් Object mappings ද ඇතුළත්ව)
     public Inquiry(Long id, Client client, Agent agent, Long propertyId, String message, boolean isReplied, LocalDateTime sentAt, LocalDateTime repliedAt) {
         this.id = id;
         this.client = client;
@@ -52,7 +48,6 @@ public class Inquiry {
         this.repliedAt = repliedAt;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

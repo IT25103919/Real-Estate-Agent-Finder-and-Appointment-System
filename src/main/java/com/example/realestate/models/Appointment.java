@@ -11,12 +11,10 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // වෙනස් කළ කොටස: Client සමඟ Many-to-One සම්බන්ධතාවය
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    // වෙනස් කළ කොටස: Agent සමඟ Many-to-One සම්බන්ධතාවය
     @ManyToOne
     @JoinColumn(name = "agent_id", nullable = false)
     private Agent agent;
@@ -35,11 +33,9 @@ public class Appointment {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Default Constructor
     public Appointment() {
     }
 
-    // All-Args Constructor (අලුත් Object mappings ද ඇතුළත්ව)
     public Appointment(Long id, Client client, Agent agent, Long propertyId, LocalDateTime scheduledAt, AppointmentStatus status, String notes, LocalDateTime createdAt) {
         this.id = id;
         this.client = client;
@@ -51,7 +47,6 @@ public class Appointment {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
