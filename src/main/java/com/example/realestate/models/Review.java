@@ -10,7 +10,7 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Review message
+
     @Column(nullable = false)
     private String comment;
 
