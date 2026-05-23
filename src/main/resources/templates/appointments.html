@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 30px;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th{
+            background: #007bff;
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h2>Virtual Appointments</h2>
+
+<table>
+
+    <thead>
+
+    <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Agent</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+    </tr>
+
+    </thead>
+
+    <tbody id="appointmentTable">
+
+    </tbody>
+
+</table>
+
+<script>
+
+    async function loadAppointments() {
+
+        const response = await fetch(
+            "http://localhost:8080/appointments"
+        );
+
+        const appointments = await response.json();
+
+        let rows = "";
+
+        appointments.forEach(a => {
+
+            rows += `
+            <tr>
+
+                <td>${a.id}</td>
+                <td>${a.clientId}</td>
+                <td>${a.agentId}</td>
+                <td>${a.date}</td>
+                <td>${a.time}</td>
+                <td>${a.status}</td>
+
+            </tr>
+            `;
+        });
+
+        document.getElementById("appointmentTable")
+            .innerHTML = rows;
+    }
+
+    loadAppointments();
+
+</script>
+
+</body>
+</html>

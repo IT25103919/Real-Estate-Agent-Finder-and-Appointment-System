@@ -182,8 +182,8 @@
         errorMsg.style.display   = 'none';
 
         if (!clientId) { showError('You must be logged in to submit a complaint.'); return; }
-        if (!agentId)  { showError('Please select an agent.');                       return; }
-        if (!description) { showError('Please enter a complaint description.');      return; }
+        if (!agentId)  { showError('Please select an agent.'); return; }
+        if (!description) { showError('Please enter a complaint description.'); return; }
 
         const payload = {
             clientId:    parseInt(clientId),
@@ -191,7 +191,7 @@
             description: description
         };
 
-        btn.disabled    = true;
+        btn.disabled = true;
         btn.textContent = 'Submitting...';
 
         try {

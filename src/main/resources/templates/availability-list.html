@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Agent Availability</title>
+
+  <style>
+
+    body{
+      font-family: Arial;
+      background:#f4f4f4;
+      padding:40px;
+    }
+
+    .container{
+      width:600px;
+      margin:auto;
+      background:white;
+      padding:30px;
+      border-radius:10px;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin-bottom:20px;
+    }
+
+    button{
+      padding:10px 20px;
+      background:#007bff;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+
+    .slot{
+      background:#e9ecef;
+      padding:15px;
+      margin-top:10px;
+      border-radius:5px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>View Agent Availability</h2>
+
+  <input type="text"
+         id="agentId"
+         placeholder="Enter Agent ID">
+
+  <button onclick="loadAvailability()">
+    Search
+  </button>
+
+  <div id="results"></div>
+
+</div>
+
+<script>
+
+  async function loadAvailability(){
+
+    const agentId =
+            document.getElementById("agentId").value;
+
+    const response = await fetch(
+            `http://localhost:8080/availability/agent/${agentId}`
+    );
+
+    const data = await response.json();
+
+    let html = "";
+
+    data.forEach(slot => {
+
+      html += `
+        <div class="slot">
+
+            <h3>${slot.date}</h3>
+
+            <p>${slot.time}</p>
+
+            <button onclick="
+                bookAppointment(
+                    '${slot.agentId}',
+                    '${slot.date}',
+                    '${slot.time}',
+                    ${slot.id}
+                )
+            ">
+                Book Appointment
+            </button>
+
+        </div>
+      `;
+    });
+
+    document.getElementById("results").innerHTML = html;
+  }
+
+  async function bookAppointment(
+          agentId,
+          date,
+          time,
+          availabilityId
+  ){
+
+    const appointment = {
+
+      clientId: "C001",
+
+      agentId: agentId,
+
+      date: date,
+
+      time: time,
+
+      status: "Pending",
+
+      notes: "Booked from availability"
+    };
+
+    await fetch(
+            "http://localhost:8080/appointments",
+            {
+              method:"POST",
+
+              headers:{
+                "Content-Type":"application/json"
+              },
+
+              body:JSON.stringify(appointment)
+            }
+    );
+
+    await fetch(
+            `http://localhost:8080/availability/${availabilityId}`,
+            {
+              method:"DELETE"
+            }
+    );
+
+    alert("Appointment Booked");
+
+    loadAvailability();
+  }
+
+</script>
+
+</body>
+</html>
