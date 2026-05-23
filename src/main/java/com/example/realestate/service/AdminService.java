@@ -20,19 +20,19 @@ public class AdminService {
     @Autowired
     private ComplaintRepository complaintRepository;
 
-
+    // ── GET ALL USERS ──────────────────────────────
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-
+    // ── DELETE A USER ──────────────────────────────
     public String deleteUser(Long id) {
         if (!userRepository.existsById(id)) return "NOT_FOUND";
         userRepository.deleteById(id);
         return "DELETED";
     }
 
-    //  BAN A USER
+    // ── BAN A USER ─────────────────────────────────
     public String banUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) return "NOT_FOUND";
@@ -42,7 +42,7 @@ public class AdminService {
         return "BANNED";
     }
 
-    //  UNBAN A USER
+    // ── UNBAN A USER ───────────────────────────────
     public String unbanUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) return "NOT_FOUND";
@@ -52,7 +52,7 @@ public class AdminService {
         return "UNBANNED";
     }
 
-    // APPROVE AN AGENT
+    // ── APPROVE AN AGENT ───────────────────────────
     public String approveAgent(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) return "NOT_FOUND";
@@ -63,7 +63,7 @@ public class AdminService {
         return "APPROVED";
     }
 
-    //  GET PENDING AGENTS
+    // ── GET PENDING AGENTS ─────────────────────────
     public List<User> getPendingAgents() {
         return userRepository.findAll()
                 .stream()
@@ -72,20 +72,22 @@ public class AdminService {
                 .toList();
     }
 
-    //  GET ALL COMPLAINTS
+    // ── GET ALL COMPLAINTS ─────────────────────────
     public List<Complaint> getAllComplaints() {
         return complaintRepository.findAll();
     }
 
-    //  DELETE / DISMISS A COMPLAINT
+    // ── DELETE / DISMISS A COMPLAINT ───────────────
     public String deleteComplaint(Long id) {
         if (!complaintRepository.existsById(id)) return "NOT_FOUND";
         complaintRepository.deleteById(id);
         return "DELETED";
     }
 
-    // NEW: CREATE ANOTHER ADMIN
-
+    // ── NEW: CREATE ANOTHER ADMIN ──────────────────
+    // An existing admin can register a new admin account directly.
+    // Unlike normal registration, admin accounts are set ACTIVE immediately
+    // and are saved as an Admin entity (not a plain User).
     public String createAdmin(Admin newAdmin) {
         // Check email is not already taken
         if (userRepository.existsByEmail(newAdmin.getEmail())) {

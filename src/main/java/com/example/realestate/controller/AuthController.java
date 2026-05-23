@@ -14,17 +14,15 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")  // allows your HTML frontend to call this API
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
     private UserService userService;
 
-
     @Autowired
     private UserRepository userRepository;
 
-    // REGISTER endpoint
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
         Map<String, String> response = new HashMap<>();
@@ -41,13 +39,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // LOGIN endpoint
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
 
-        // First check if the user exists at all
         Optional<User> userOpt = userRepository.findByEmail(email);
         Map<String, String> response = new HashMap<>();
 
@@ -59,7 +55,6 @@ public class AuthController {
 
         User foundUser = userOpt.get();
 
-        // Check if banned
         if (foundUser.getStatus() == User.Status.BANNED) {
             response.put("status", "error");
             response.put("message", "Your account has been banned. Contact admin.");
@@ -83,6 +78,7 @@ public class AuthController {
         }
 
         response.put("status", "success");
+        response.put("id", foundUser.getId().toString()); // 🌟 FIX: Returns the user ID to the frontend
         response.put("role", user.getRole().toString());
         response.put("name", user.getFullName());
         return ResponseEntity.ok(response);

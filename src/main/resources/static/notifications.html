@@ -503,7 +503,7 @@
 <div class="toast" id="toast"><i class="fa fa-circle-check" style="color:var(--success); margin-right: 8px;"></i><span id="toastMsg">Done!</span></div>
 
 <script>
-    const CURRENT_USER_ID=1;
+    const CURRENT_USER_ID = localStorage.getItem('userId') || 1;
     const API_BASE='http://localhost:8080/api/notifications';
     let allNotifications=[];
     let currentFilter='all';

@@ -37,14 +37,20 @@
 
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; color: #4a5568; margin-bottom: 8px; font-size: 14px; }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%; padding: 12px 14px;
             border: 1.5px solid var(--border-color); border-radius: 8px;
             font-family: inherit; font-size: 14px; outline: none; transition: 0.2s;
+            background: #fff;
         }
-        .form-group input:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(43,108,176,0.1);
+        }
+        .form-group input[readonly] {
+            background: #f7fafc;
+            color: var(--text-muted);
+            cursor: not-allowed;
         }
         .field-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
@@ -89,13 +95,15 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="clientId">Your Client ID</label>
-                <input type="number" id="clientId" placeholder="e.g. 4" min="1" required>
-                <div class="field-hint">Your registered client ID number.</div>
+                <input type="number" id="clientId" placeholder="Loading..." min="1" required readonly>
+                <div class="field-hint" id="clientNameHint">Loading your details...</div>
             </div>
             <div class="form-group">
-                <label for="agentId">Agent ID</label>
-                <input type="number" id="agentId" placeholder="e.g. 5" min="1" required>
-                <div class="field-hint">The ID of the agent you are complaining about.</div>
+                <label for="agentId">Agent</label>
+                <select id="agentId" required>
+                    <option value="">Loading agents...</option>
+                </select>
+                <div class="field-hint">Select the agent you are complaining about.</div>
             </div>
         </div>
 
@@ -112,6 +120,56 @@
 </main>
 
 <script>
+    // ── On page load: fill client info + load agent dropdown ──────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        fillClientInfo();
+        await loadAgents();
+    });
+
+    function fillClientInfo() {
+        const userId   = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+
+        const clientIdInput  = document.getElementById('clientId');
+        const clientNameHint = document.getElementById('clientNameHint');
+
+        if (userId && userId !== 'null' && userId !== 'undefined') {
+            clientIdInput.value = userId;
+            clientNameHint.textContent = userName
+                ? `Logged in as: ${userName}`
+                : 'Your registered client ID number.';
+        } else {
+            clientIdInput.placeholder = 'Not logged in';
+            clientNameHint.textContent = 'You must be logged in to submit a complaint.';
+            clientNameHint.style.color = '#e53e3e';
+        }
+    }
+
+    async function loadAgents() {
+        const select = document.getElementById('agentId');
+        try {
+            const res    = await fetch('http://localhost:8080/api/agents');
+            const agents = await res.json();
+
+            select.innerHTML = '<option value="">-- Select an Agent --</option>';
+
+            if (!agents.length) {
+                select.innerHTML = '<option value="">No agents available</option>';
+                return;
+            }
+
+            agents.forEach(agent => {
+                const option = document.createElement('option');
+                option.value       = agent.id;
+                option.textContent = `${agent.fullName} (ID: ${agent.id})`;
+                select.appendChild(option);
+            });
+        } catch (err) {
+            select.innerHTML = '<option value="">Could not load agents</option>';
+        }
+    }
+
+    // ── Submit complaint ───────────────────────────────────────────────────────
     async function submitComplaint() {
         const clientId    = document.getElementById('clientId').value.trim();
         const agentId     = document.getElementById('agentId').value.trim();
@@ -120,14 +178,12 @@
         const errorMsg    = document.getElementById('errorMsg');
         const btn         = document.getElementById('submitBtn');
 
-        // Hide previous messages
         successMsg.style.display = 'none';
         errorMsg.style.display   = 'none';
 
-        // Validation
-        if (!clientId) { showError('Please enter your Client ID.'); return; }
-        if (!agentId)  { showError('Please enter the Agent ID.');   return; }
-        if (!description) { showError('Please enter a complaint description.'); return; }
+        if (!clientId) { showError('You must be logged in to submit a complaint.'); return; }
+        if (!agentId)  { showError('Please select an agent.');                       return; }
+        if (!description) { showError('Please enter a complaint description.');      return; }
 
         const payload = {
             clientId:    parseInt(clientId),
@@ -135,7 +191,7 @@
             description: description
         };
 
-        btn.disabled   = true;
+        btn.disabled    = true;
         btn.textContent = 'Submitting...';
 
         try {
@@ -148,10 +204,8 @@
             const data = await response.json();
 
             if (data.status === 'success') {
-                successMsg.textContent = '✅ Complaint submitted successfully! The admin will review it.';
+                successMsg.textContent   = '✅ Complaint submitted successfully! The admin will review it.';
                 successMsg.style.display = 'block';
-                // Clear the form
-                document.getElementById('clientId').value    = '';
                 document.getElementById('agentId').value     = '';
                 document.getElementById('description').value = '';
             } else {

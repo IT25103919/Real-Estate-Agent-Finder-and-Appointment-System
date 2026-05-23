@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Dashboard - EstateHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{
+        scroll-behavior:smooth;
+    }
+    :root{
+        --primary:#2b6cb0;--primary-light:#ebf8ff;--gold:#c9a84c;--gold-light:#f2d27b;
+        --bg:#f0f4f8;--card:#ffffff;--text:#2d3748;--muted:#718096;--border:#e2e8f0;
+        --success:#38a169;--danger:#e53e3e;--sidebar:260px;
+    }
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+    .sidebar-logo{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .logo-box{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#0f1f3d}
+    .logo-text h2{font-family:'DM Serif Display',serif;font-size:18px;color:var(--primary)}
+    .logo-text p{font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+    .sidebar-nav{padding:16px 0;flex:1}
+    .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a0aec0;padding:0 20px 6px;font-weight:600}
+    /* sidebar links scroll to sections — no tab switching */
+    .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--text);text-decoration:none;font-weight:500;border-left:3px solid transparent;font-size:14px;transition:.15s;cursor:pointer}
+    .nav-item:hover{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary)}
+    .sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+    .agent-mini{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .mini-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);overflow:hidden;flex-shrink:0}
+    .mini-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .mini-name{font-size:13px;font-weight:600}
+    .mini-role{font-size:11px;color:var(--muted)}
+    .btn-logout{width:100%;padding:8px;background:white;border:1px solid var(--border);color:var(--danger);border-radius:6px;cursor:pointer;font-weight:600;font-size:13px}
+    .btn-logout:hover{background:#fff5f5}
+
+    /* ── MAIN — single scrollable page ── */
+    .main{margin-left:var(--sidebar);flex:1;padding:32px;display:flex;flex-direction:column;gap:32px}
+
+    /* WELCOME BANNER */
+    .welcome-banner{background:linear-gradient(135deg,#0f1f3d,#2b6cb0);color:white;padding:28px 32px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+    .welcome-banner h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px}
+    .welcome-banner p{font-size:13px;opacity:.8}
+
+    /* SECTION TITLES */
+    .sec-title{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between}
+    .stat-val{font-family:'DM Serif Display',serif;font-size:30px;color:var(--primary)}
+    .stat-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .stat-icon{width:44px;height:44px;border-radius:10px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:18px}
+
+    /* PROFILE CARD */
+    .profile-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .profile-banner{height:110px;background:linear-gradient(135deg,#0f1f3d,#2b6cb0);position:relative}
+    .profile-photo-wrap{position:absolute;bottom:-44px;left:28px;width:88px;height:88px;border-radius:50%;border:4px solid white;background:#edf2f7;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;color:#a0aec0;cursor:pointer}
+    .profile-photo-wrap img{width:100%;height:100%;object-fit:cover}
+    .photo-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);color:white;font-size:10px;text-align:center;padding:2px;opacity:0;transition:.2s}
+    .profile-photo-wrap:hover .photo-hint{opacity:1}
+    .profile-body{padding:54px 28px 24px}
+    .profile-meta-row{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-bottom:20px}
+    .profile-meta-row i{color:var(--primary);margin-right:4px}
+
+    /* EDIT FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-group label{font-size:12px;font-weight:600;color:#4a5568}
+    .form-group input,.form-group textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:.2s}
+    .form-group input:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+    .form-full{grid-column:1/-1}
+
+    /* BUTTONS */
+    .btn{padding:9px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary{background:var(--primary);color:white}.btn-primary:hover{background:#2c5282}
+    .btn-success{background:var(--success);color:white}.btn-success:hover{background:#276749}
+    .btn-danger{background:#fff5f5;color:var(--danger);border:1px solid #fed7d7}.btn-danger:hover{background:#fed7d7}
+    .btn-gold{background:var(--gold);color:#0f1f3d}.btn-gold:hover{background:var(--gold-light)}
+
+    /* MSG */
+    .msg{padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;margin-bottom:10px;display:none}
+    .msg-ok{background:#c6f6d5;color:#22543d}.msg-err{background:#fed7d7;color:#742a2a}
+
+    /* ADD PROPERTY FORM */
+    .add-prop-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+    .photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+    .photo-box{height:90px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:.2s}
+    .photo-box:hover{border-color:var(--primary)}
+    .photo-box img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+    .photo-box input{display:none}
+    .photo-box .plus{font-size:22px;color:#a0aec0;position:relative;z-index:1}
+    .type-toggle{display:flex;gap:10px;margin-bottom:14px}
+    .type-btn{flex:1;padding:9px;border:2px solid var(--border);border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:var(--muted);transition:.2s}
+    .type-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+
+    /* PROPERTY GRID */
+    .prop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+    .prop-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .slider{position:relative;height:160px;overflow:hidden;background:#edf2f7}
+    .slider-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+    .slider-img.active{opacity:1}
+    .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;color:#a0aec0}
+    .slider-dots{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+    .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.2s}
+    .dot.active{background:white}
+    .sl-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.3);color:white;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+    .sl-btn.prev{left:5px}.sl-btn.next{right:5px}
+    .prop-body{padding:13px}
+    .prop-title{font-weight:700;font-size:14px;margin-bottom:3px}
+    .prop-price{color:var(--primary);font-weight:700;font-size:15px;margin-bottom:6px}
+    .prop-detail{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+    .badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+    .badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+    .b-res{background:#ebf8ff;color:#2b6cb0}.b-com{background:#fef3c7;color:#92400e}
+    .b-sold{background:#fed7d7;color:#742a2a}.b-avail{background:#c6f6d5;color:#22543d}
+    .prop-actions{display:flex;gap:6px}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:20px;right:20px;color:white;padding:11px 20px;border-radius:8px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+    @media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-box">EH</div>
+    <div class="logo-text"><h2>EstateHub</h2><p>Agent Portal</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Agent Menu</div>
+    <div class="nav-item" onclick="scrollTo('sec-overview')"><i class="fa fa-chart-pie"></i> Overview</div>
+    <div class="nav-item" onclick="scrollTo('sec-profile')"><i class="fa fa-user"></i> My Profile</div>
+    <div class="nav-item" onclick="scrollTo('sec-add')"><i class="fa fa-plus-circle"></i> Add Property</div>
+    <div class="nav-item" onclick="scrollTo('sec-props')"><i class="fa fa-home"></i> My Properties</div>
+    <div class="nav-item" onclick="scrollTo('sec-sold')"><i class="fa fa-trophy"></i> Sold Properties</div>
+
+    <div class="nav-label" style="margin-top: 15px;">Meetings & Scheduling</div>
+    <a href="appointments.html" class="nav-item"><i class="fa fa-video"></i> Virtual Meetings</a>
+    <a href="appointments-list.html" class="nav-item"><i class="fa fa-calendar-check"></i> All Appointments</a>
+    <a href="availability.html" class="nav-item"><i class="fa fa-clock"></i> Set Availability</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="agent-mini">
+      <div class="mini-avatar" id="sideAvatar">A</div>
+      <div>
+        <div class="mini-name" id="sideName">Agent</div>
+        <div class="mini-role">Real Estate Agent</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Log Out</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- WELCOME BANNER -->
+  <div class="welcome-banner">
+    <div>
+      <h2 id="greeting">Welcome Back!</h2>
+      <p>Manage your listings, profile and track your sold properties below.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 1: OVERVIEW STATS ── -->
+  <div id="sec-overview">
+    <div class="sec-title">Overview</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div><div class="stat-lbl">Total Listed</div><div class="stat-val" id="statTotal">0</div></div>
+        <div class="stat-icon"><i class="fa fa-home"></i></div>
+      </div>
+      <div class="stat-card">
+        <div><div class="stat-lbl">Properties Sold</div><div class="stat-val" id="statSold">0</div></div>
+        <div class="stat-icon"><i class="fa fa-trophy"></i></div>
+      </div>
+      <div class="stat-card">
+        <div><div class="stat-lbl">Available Now</div><div class="stat-val" id="statAvail">0</div></div>
+        <div class="stat-icon"><i class="fa fa-check-circle"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: MY PROFILE ── -->
+  <div id="sec-profile">
+    <div class="sec-title">My Profile</div>
+    <div class="profile-card">
+      <div class="profile-banner">
+        <div class="profile-photo-wrap" id="photoWrap" onclick="document.getElementById('photoInput').click()">
+          <i class="fa fa-user" id="photoIcon"></i>
+          <img id="photoImg" style="display:none" alt="profile">
+          <div class="photo-hint"><i class="fa fa-camera"></i> Change</div>
+        </div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+      <div class="profile-body">
+        <div class="profile-meta-row">
+          <span><i class="fa fa-id-badge"></i> ID: <strong id="profileId">—</strong></span>
+          <span><i class="fa fa-certificate"></i> License: <strong id="profileLicense">—</strong></span>
+          <span><i class="fa fa-map-marker-alt"></i> <strong id="profileLocation">—</strong></span>
+          <span><i class="fa fa-envelope"></i> <strong id="profileEmail">—</strong></span>
+        </div>
+        <div class="msg msg-ok" id="profileOk"></div>
+        <div class="msg msg-err" id="profileErr"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="editName" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label>License Number</label>
+            <input type="text" id="editLicense" placeholder="License number">
+          </div>
+          <div class="form-group">
+            <label>Location / Area</label>
+            <input type="text" id="editLocation" placeholder="e.g. Colombo, Kandy">
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" onclick="saveProfile()"><i class="fa fa-save"></i> Save Profile</button>
+          </div>
+          <div class="form-group form-full">
+            <label>Bio</label>
+            <textarea id="editBio" rows="3" placeholder="A short description about yourself..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: ADD PROPERTY ── -->
+  <div id="sec-add">
+    <div class="sec-title">Add New Property</div>
+    <div class="add-prop-form">
+      <div class="msg msg-ok" id="addOk"></div>
+      <div class="msg msg-err" id="addErr"></div>
+
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload up to 4 photos of the property.</p>
+      <!-- 4 PHOTO SLOTS -->
+      <div class="photo-grid">
+        <div class="photo-box" onclick="document.getElementById('p1').click()">
+          <input type="file" id="p1" accept="image/*" onchange="previewPhoto(event,'pv1','photo1')">
+          <img id="pv1" style="display:none"><span class="plus">+</span>
+        </div>
+        <div class="photo-box" onclick="document.getElementById('p2').click()">
+          <input type="file" id="p2" accept="image/*" onchange="previewPhoto(event,'pv2','photo2')">
+          <img id="pv2" style="display:none"><span class="plus">+</span>
+        </div>
+        <div class="photo-box" onclick="document.getElementById('p3').click()">
+          <input type="file" id="p3" accept="image/*" onchange="previewPhoto(event,'pv3','photo3')">
+          <img id="pv3" style="display:none"><span class="plus">+</span>
+        </div>
+        <div class="photo-box" onclick="document.getElementById('p4').click()">
+          <input type="file" id="p4" accept="image/*" onchange="previewPhoto(event,'pv4','photo4')">
+          <img id="pv4" style="display:none"><span class="plus">+</span>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>Property Title</label>
+          <input type="text" id="pTitle" placeholder="e.g. Modern 3-Bed Villa in Colombo 7">
+        </div>
+
+        <!-- PROPERTY TYPE -->
+        <div class="form-group form-full">
+          <label>Property Type</label>
+          <div class="type-toggle">
+            <button class="type-btn active" id="btnRes" onclick="setType('RESIDENTIAL')">🏠 Residential</button>
+            <button class="type-btn"        id="btnCom" onclick="setType('COMMERCIAL')">🏢 Commercial</button>
+          </div>
+        </div>
+
+        <!-- RESIDENTIAL FIELDS -->
+        <div class="form-group" id="fBed">
+          <label>Bedrooms</label>
+          <input type="number" id="pBed" placeholder="e.g. 3" min="0">
+        </div>
+        <div class="form-group" id="fBath">
+          <label>Bathrooms</label>
+          <input type="number" id="pBath" placeholder="e.g. 2" min="0">
+        </div>
+
+        <!-- COMMERCIAL FIELD -->
+        <div class="form-group form-full" id="fSqft" style="display:none">
+          <label>Square Feet</label>
+          <input type="number" id="pSqft" placeholder="e.g. 2500" min="0">
+        </div>
+
+        <!-- DISTRICT -->
+        <div class="form-group">
+          <label>District</label>
+          <select id="pDistrict" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;background:white">
+            <option value="">-- Select District --</option>
+            <option>Ampara</option><option>Anuradhapura</option><option>Badulla</option>
+            <option>Batticaloa</option><option>Colombo</option><option>Galle</option>
+            <option>Gampaha</option><option>Hambantota</option><option>Jaffna</option>
+            <option>Kalutara</option><option>Kandy</option><option>Kegalle</option>
+            <option>Kilinochchi</option><option>Kurunegala</option><option>Mannar</option>
+            <option>Matale</option><option>Matara</option><option>Monaragala</option>
+            <option>Mullaitivu</option><option>Nuwara Eliya</option><option>Polonnaruwa</option>
+            <option>Puttalam</option><option>Ratnapura</option><option>Trincomalee</option>
+            <option>Vavuniya</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Price (LKR)</label>
+          <input type="number" id="pPrice" placeholder="e.g. 15000000" min="0">
+        </div>
+
+        <div class="form-group form-full" style="margin-top:4px">
+          <button class="btn btn-gold" style="width:100%;padding:12px;font-size:14px" onclick="submitProperty()">
+            <i class="fa fa-plus"></i> Add Property Listing
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: ALL MY PROPERTIES ── -->
+  <div id="sec-props">
+    <div class="sec-title">
+      My Properties
+      <span id="propCount" style="font-size:14px;font-weight:500;color:var(--muted)">0 listings</span>
+    </div>
+    <div class="msg msg-ok" id="propMsg"></div>
+    <div class="prop-grid" id="propGrid">
+      <p style="color:var(--muted);font-size:14px">Loading...</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: SOLD PROPERTIES ── -->
+  <div id="sec-sold">
+    <div class="sec-title">
+      Sold Properties
+      <span id="soldCount" style="font-size:14px;font-weight:500;color:var(--muted)">0 sold</span>
+    </div>
+    <div class="prop-grid" id="soldGrid">
+      <p style="color:var(--muted);font-size:14px">No sold properties yet.</p>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const agentId = localStorage.getItem('userId');
+  const API     = 'http://localhost:8080/api/agent';
+  let currentType = 'RESIDENTIAL';
+  let photos = {};
+  let newAgentPhoto = null;
+
+  // ── INIT ──────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+      if (!agentId || agentId === 'null' || agentId === 'undefined') {
+          window.location.href = 'login.html'; return;
+      }
+      const name = localStorage.getItem('userName') || 'Agent';
+      document.getElementById('greeting').textContent = `Welcome Back, ${name}!`;
+      document.getElementById('sideName').textContent = name;
+      document.getElementById('sideAvatar').textContent = name.charAt(0).toUpperCase();
+      await loadProfile();
+      await loadProperties();
+  });
+
+  // ── SCROLL TO SECTION ─────────────────────────────────────────────
+  function scrollTo(id) {
+    const section = document.getElementById(id);
+
+    if (!section) return;
+
+    const yOffset = -20;
+
+    const y =
+        section.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset;
+
+    window.scrollTo({
+        top: y,
+        behavior: 'smooth'
+    });
+}
+
+  // ── LOAD PROFILE ─────────────────────────────────────────────────
+  async function loadProfile() {
+      try {
+          const agent = await fetch(`${API}/${agentId}/profile`).then(r => r.json());
+          document.getElementById('profileId').textContent       = agent.id            || '—';
+          document.getElementById('profileLicense').textContent  = agent.licenseNumber || '—';
+          document.getElementById('profileLocation').textContent = agent.location      || '—';
+          document.getElementById('profileEmail').textContent    = agent.email         || '—';
+          document.getElementById('editName').value              = agent.fullName      || '';
+          document.getElementById('editLicense').value           = agent.licenseNumber || '';
+          document.getElementById('editLocation').value          = agent.location      || '';
+          document.getElementById('editBio').value               = agent.bio           || '';
+          document.getElementById('sideName').textContent        = agent.fullName      || 'Agent';
+          document.getElementById('sideAvatar').textContent      = (agent.fullName||'A').charAt(0).toUpperCase();
+          if (agent.photo) showPhoto(agent.photo);
+      } catch(e) { console.error('Profile error', e); }
+  }
+
+  function showPhoto(src) {
+      const img  = document.getElementById('photoImg');
+      const icon = document.getElementById('photoIcon');
+      img.src = src; img.style.display = 'block'; icon.style.display = 'none';
+      // update sidebar avatar too
+      document.getElementById('sideAvatar').innerHTML =
+          `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  }
+
+  function handlePhoto(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = ev => { newAgentPhoto = ev.target.result; showPhoto(newAgentPhoto); };
+      r.readAsDataURL(file);
+  }
+
+  // ── SAVE PROFILE ─────────────────────────────────────────────────
+  async function saveProfile() {
+      const body = {
+          fullName:      document.getElementById('editName').value.trim(),
+          licenseNumber: document.getElementById('editLicense').value.trim(),
+          location:      document.getElementById('editLocation').value.trim(),
+          bio:           document.getElementById('editBio').value.trim()
+      };
+      if (newAgentPhoto) body.photo = newAgentPhoto;
+      try {
+          const data = await fetch(`${API}/${agentId}/profile`, {
+              method:'PUT', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify(body)
+          }).then(r => r.json());
+          if (data.status === 'success') {
+              showMsg('profileOk','✅ Profile updated successfully!','ok');
+              localStorage.setItem('userName', body.fullName);
+              document.getElementById('profileLocation').textContent = body.location;
+              document.getElementById('profileLicense').textContent  = body.licenseNumber;
+              document.getElementById('sideName').textContent        = body.fullName;
+              newAgentPhoto = null;
+          } else { showMsg('profileErr','❌ '+data.message,'err'); }
+      } catch { showMsg('profileErr','❌ Server error.','err'); }
+  }
+
+  // ── LOAD PROPERTIES ───────────────────────────────────────────────
+  async function loadProperties() {
+      try {
+          const props = await fetch(`${API}/${agentId}/properties`).then(r => r.json());
+          const sold  = props.filter(p => p.status === 'SOLD');
+          const avail = props.filter(p => p.status === 'AVAILABLE');
+
+          document.getElementById('statTotal').textContent = props.length;
+          document.getElementById('statSold').textContent  = sold.length;
+          document.getElementById('statAvail').textContent = avail.length;
+          document.getElementById('propCount').textContent = props.length + ' listings';
+          document.getElementById('soldCount').textContent = sold.length + ' sold';
+
+          renderGrid(props, 'propGrid', true);
+          renderGrid(sold,  'soldGrid', false);
+      } catch { document.getElementById('propGrid').innerHTML = '<p style="color:red">Error loading properties.</p>'; }
+  }
+
+  function renderGrid(props, id, showActions) {
+      const grid = document.getElementById(id);
+      if (!props.length) {
+          grid.innerHTML = `<p style="color:var(--muted);font-size:14px">${id==='soldGrid'?'No sold properties yet.':'No properties listed yet. Add one above!'}</p>`;
+          return;
+      }
+      grid.innerHTML = props.map(p => buildCard(p, showActions)).join('');
+      grid.querySelectorAll('.slider').forEach(s => initSlider(s));
+  }
+
+  function buildCard(p, actions) {
+      const imgs  = [p.photo1,p.photo2,p.photo3,p.photo4].filter(Boolean);
+      const price = p.price ? 'LKR '+Number(p.price).toLocaleString() : 'Price N/A';
+      let det = `<i class="fa fa-map-marker-alt"></i> ${p.district||'—'}<br>`;
+      if (p.propertyType==='RESIDENTIAL') {
+          if (p.bedrooms  != null) det += `🛏 ${p.bedrooms} Bed &nbsp;`;
+          if (p.bathrooms != null) det += `🚿 ${p.bathrooms} Bath`;
+      } else if (p.squareFeet) det += `📐 ${p.squareFeet.toLocaleString()} sq ft`;
+
+      const sliderHtml = imgs.length
+          ? `${imgs.map((s,i)=>`<img class="slider-img${i===0?' active':''}" src="${s}">`).join('')}
+             <div class="slider-dots">${imgs.map((_,i)=>`<div class="dot${i===0?' active':''}" data-i="${i}"></div>`).join('')}</div>
+             ${imgs.length>1?'<button class="sl-btn prev" onclick="slPrev(this)">‹</button><button class="sl-btn next" onclick="slNext(this)">›</button>':''}`
+          : `<div class="no-img"><i class="fa fa-home"></i></div>`;
+
+      const act = actions ? `<div class="prop-actions">
+          ${p.status==='AVAILABLE'?`<button class="btn btn-success" style="flex:1;font-size:12px" onclick="markSold(${p.id})">✅ Mark as Sold</button>`:'<span style="font-size:12px;color:var(--muted)">Already sold</span>'}
+          <button class="btn btn-danger" style="font-size:12px;padding:7px 10px" onclick="deleteProp(${p.id})"><i class="fa fa-trash"></i></button>
+      </div>` : '';
+
+      return `<div class="prop-card">
+          <div class="slider">${sliderHtml}</div>
+          <div class="prop-body">
+              <div class="prop-title">${p.title||'Untitled'}</div>
+              <div class="prop-price">${price}</div>
+              <div class="prop-detail">${det}</div>
+              <div class="badges">
+                  <span class="badge ${p.propertyType==='RESIDENTIAL'?'b-res':'b-com'}">${p.propertyType}</span>
+                  <span class="badge ${p.status==='SOLD'?'b-sold':'b-avail'}">${p.status}</span>
+              </div>
+              ${act}
+          </div>
+      </div>`;
+  }
+
+  // ── SLIDER ────────────────────────────────────────────────────────
+  function initSlider(s) {
+      s.dataset.cur = 0;
+      s.querySelectorAll('.dot').forEach((d,i) => d.addEventListener('click', () => goSlide(s,i)));
+  }
+  function goSlide(s, idx) {
+      s.querySelectorAll('.slider-img').forEach(i => i.classList.remove('active'));
+      s.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+      const imgs = s.querySelectorAll('.slider-img');
+      const dots = s.querySelectorAll('.dot');
+      if (imgs[idx]) imgs[idx].classList.add('active');
+      if (dots[idx]) dots[idx].classList.add('active');
+      s.dataset.cur = idx;
+  }
+  function slNext(btn) { const s=btn.closest('.slider'); const n=s.querySelectorAll('.slider-img').length; goSlide(s,(parseInt(s.dataset.cur||0)+1)%n); }
+  function slPrev(btn) { const s=btn.closest('.slider'); const n=s.querySelectorAll('.slider-img').length; goSlide(s,(parseInt(s.dataset.cur||0)-1+n)%n); }
+
+  // ── MARK SOLD ─────────────────────────────────────────────────────
+  async function markSold(id) {
+      if (!confirm('Mark this property as SOLD? This will update your sold count automatically.')) return;
+      const data = await fetch(`${API}/properties/${id}/sold`, {method:'PUT'}).then(r=>r.json());
+      if (data.status==='success') { toast('🎉 Property marked as sold! Stats updated.','success'); await loadProperties(); }
+      else toast('❌ '+data.message,'error');
+  }
+
+  // ── DELETE PROPERTY ───────────────────────────────────────────────
+  async function deleteProp(id) {
+      if (!confirm('Delete this property permanently?')) return;
+      const data = await fetch(`${API}/properties/${id}`, {method:'DELETE'}).then(r=>r.json());
+      if (data.status==='success') { toast('Property deleted.'); await loadProperties(); }
+      else toast('❌ '+data.message,'error');
+  }
+
+  // ── ADD PROPERTY ─────────────────────────────────────────────────
+  function previewPhoto(e, prevId, key) {
+      const file = e.target.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = ev => {
+          photos[key] = ev.target.result;
+          const img = document.getElementById(prevId);
+          img.src = ev.target.result; img.style.display = 'block';
+      };
+      r.readAsDataURL(file);
+  }
+
+  function setType(type) {
+      currentType = type;
+      document.getElementById('fBed').style.display   = type==='RESIDENTIAL' ? 'flex' : 'none';
+      document.getElementById('fBath').style.display  = type==='RESIDENTIAL' ? 'flex' : 'none';
+      document.getElementById('fSqft').style.display  = type==='COMMERCIAL'  ? 'flex' : 'none';
+      document.getElementById('btnRes').classList.toggle('active', type==='RESIDENTIAL');
+      document.getElementById('btnCom').classList.toggle('active', type==='COMMERCIAL');
+  }
+
+  async function submitProperty() {
+      const title    = document.getElementById('pTitle').value.trim();
+      const district = document.getElementById('pDistrict').value;
+      const price    = document.getElementById('pPrice').value;
+
+      document.getElementById('addErr').style.display = 'none';
+      document.getElementById('addOk').style.display  = 'none';
+
+      if (!title || !district || !price) {
+          showMsg('addErr','❌ Please fill in Title, District and Price.','err'); return;
+      }
+
+      const payload = { title, district, price: parseFloat(price), propertyType: currentType, ...photos };
+      if (currentType==='RESIDENTIAL') {
+          payload.bedrooms  = parseInt(document.getElementById('pBed').value)  || null;
+          payload.bathrooms = parseInt(document.getElementById('pBath').value) || null;
+      } else {
+          payload.squareFeet = parseFloat(document.getElementById('pSqft').value) || null;
+      }
+
+      try {
+          const data = await fetch(`${API}/${agentId}/properties`, {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify(payload)
+          }).then(r => r.json());
+
+          if (data.status === 'success') {
+              showMsg('addOk','✅ Property listed successfully!','ok');
+              // Reset form
+              ['pTitle','pBed','pBath','pSqft','pPrice'].forEach(id => document.getElementById(id).value='');
+              document.getElementById('pDistrict').value = '';
+              photos = {};
+              ['pv1','pv2','pv3','pv4'].forEach(id => { const img=document.getElementById(id); img.src=''; img.style.display='none'; });
+              setType('RESIDENTIAL');
+              await loadProperties();
+              // Scroll to properties section
+              setTimeout(() => scrollTo('sec-props'), 500);
+          } else {
+              showMsg('addErr','❌ '+data.message,'err');
+          }
+      } catch { showMsg('addErr','❌ Server error.','err'); }
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────
+  function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className   = 'msg msg-'+(type==='ok'?'ok':'err');
+      el.style.display = 'block';
+      setTimeout(() => el.style.display='none', 4000);
+  }
+  function toast(msg, type='') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = type==='success'?'#38a169':type==='error'?'#e53e3e':'#2d3748';
+      t.style.display = 'block';
+      setTimeout(() => t.style.display='none', 3000);
+  }
+  function logout() { localStorage.clear(); window.location.href='login.html'; }
+</script>
+</body>
+</html>

@@ -114,8 +114,6 @@
             const data = await response.json();
 
             if (data.status === 'success') {
-                // FIX: AuthController now returns data.id in the response.
-                // Previously data.id was undefined because the backend never sent it.
                 localStorage.setItem('userId',   data.id);
                 localStorage.setItem('userRole', data.role);
                 localStorage.setItem('userName', data.name);
@@ -126,11 +124,10 @@
                     if (data.role === 'ADMIN') {
                         window.location.href = 'Admindashboard.html';
                     } else if (data.role === 'AGENT') {
-                        window.location.href = 'agent-dashboard.html';
+                        window.location.href = 'Agent dashboard.html'; // 🌟 FIX: Sends the agent to the management portal where they can list properties
                     } else {
-
                         const redirect = localStorage.getItem('redirectAfterLogin');
-                        localStorage.removeItem('redirectAfterLogin'); // clear it after use
+                        localStorage.removeItem('redirectAfterLogin');
                         window.location.href = redirect || 'client-dashboard.html';
                     }
                 }, 1000);
