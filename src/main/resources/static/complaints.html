@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File a Complaint - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --primary: #2b6cb0; --primary-light: #ebf8ff; --gold: #c9a84c; --gold-light: #f2d27b;
+          --bg-color: #f0f4f8; --card-bg: #ffffff; --text-main: #2d3748; --text-muted: #718096;
+          --border-color: #e2e8f0; --sidebar-w: 260px;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
+        .logo-box { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); display: flex; justify-content: center; align-items: center; }
+        .logo-box span { font-size: 18px; font-weight: 700; color: #0f1f3d; font-family: 'DM Serif Display', serif; }
+        .logo-text h2 { color: var(--primary); font-size: 20px; font-family: 'DM Serif Display', serif; }
+        .logo-text p { color: var(--gold); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: bold; }
+        .sidebar-nav { padding: 20px 0; flex: 1; }
+        .nav-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #a0aec0; padding: 0 24px 8px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: var(--text-main); text-decoration: none; font-weight: 500; border-left: 4px solid transparent; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px; }
+        h1 { font-family: 'DM Serif Display', serif; font-size: 30px; margin-bottom: 4px; }
+        .subtitle { color: var(--text-muted); margin-bottom: 32px; }
+
+        .form-card { background: white; padding: 32px; border-radius: 16px; border: 1px solid var(--border-color); max-width: 600px; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: #4a5568; margin-bottom: 8px; font-size: 14px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px 14px;
+            border: 1.5px solid var(--border-color); border-radius: 8px;
+            font-family: inherit; font-size: 14px; outline: none; transition: 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.1);
+        }
+        .field-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .btn-submit { background: #e53e3e; color: white; border: none; padding: 13px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 4px; }
+        .btn-submit:hover { background: #c53030; }
+        .btn-submit:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        .msg { padding: 12px 16px; border-radius: 8px; font-weight: 500; font-size: 14px; margin-bottom: 16px; display: none; }
+        .msg-success { background: #c6f6d5; color: #22543d; }
+        .msg-error   { background: #fed7d7; color: #742a2a; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box"><span>EH</span></div>
+        <div class="logo-text"><h2>EstateHub</h2><p>Luxury Real Estate</p></div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Client Menu</div>
+        <a href="client-dashboard.html" class="nav-item"><i class="fa fa-chart-pie"></i> Dashboard</a>
+        <a href="properties.html"       class="nav-item"><i class="fa fa-home"></i> Explore Properties</a>
+        <a href="agents.html"           class="nav-item"><i class="fa fa-user-tie"></i> Our Agents</a>
+        <a href="inquiries.html"        class="nav-item"><i class="fa fa-envelope"></i> My Inquiries</a>
+        <a href="notifications.html"    class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
+        <a href="complaints.html"       class="nav-item active"><i class="fa fa-gavel"></i> File a Complaint</a>
+        <a href="client-profile.html"   class="nav-item"><i class="fa fa-user"></i> My Profile</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <h1>File a Complaint</h1>
+    <p class="subtitle">Enter your Client ID and the Agent ID to submit a complaint.</p>
+
+    <div class="form-card">
+
+        <div class="msg msg-success" id="successMsg"></div>
+        <div class="msg msg-error"   id="errorMsg"></div>
+
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="clientId">Your Client ID</label>
+                <input type="number" id="clientId" placeholder="e.g. 4" min="1" required>
+                <div class="field-hint">Your registered client ID number.</div>
+            </div>
+            <div class="form-group">
+                <label for="agentId">Agent ID</label>
+                <input type="number" id="agentId" placeholder="e.g. 5" min="1" required>
+                <div class="field-hint">The ID of the agent you are complaining about.</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Complaint Description</label>
+            <textarea id="description" rows="6" placeholder="Describe what happened clearly..." required></textarea>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitComplaint()">
+            <i class="fa fa-paper-plane"></i> Submit Complaint
+        </button>
+
+    </div>
+</main>
+
+<script>
+    async function submitComplaint() {
+        const clientId    = document.getElementById('clientId').value.trim();
+        const agentId     = document.getElementById('agentId').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const successMsg  = document.getElementById('successMsg');
+        const errorMsg    = document.getElementById('errorMsg');
+        const btn         = document.getElementById('submitBtn');
+
+        // Hide previous messages
+        successMsg.style.display = 'none';
+        errorMsg.style.display   = 'none';
+
+        // Validation
+        if (!clientId) { showError('Please enter your Client ID.'); return; }
+        if (!agentId)  { showError('Please enter the Agent ID.');   return; }
+        if (!description) { showError('Please enter a complaint description.'); return; }
+
+        const payload = {
+            clientId:    parseInt(clientId),
+            agentId:     parseInt(agentId),
+            description: description
+        };
+
+        btn.disabled   = true;
+        btn.textContent = 'Submitting...';
+
+        try {
+            const response = await fetch('http://localhost:8080/api/client/complaints', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                successMsg.textContent = '✅ Complaint submitted successfully! The admin will review it.';
+                successMsg.style.display = 'block';
+                // Clear the form
+                document.getElementById('clientId').value    = '';
+                document.getElementById('agentId').value     = '';
+                document.getElementById('description').value = '';
+            } else {
+                showError('❌ ' + (data.message || 'Could not submit complaint.'));
+            }
+
+        } catch (err) {
+            showError('❌ Cannot connect to the backend. Make sure the server is running.');
+        } finally {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fa fa-paper-plane"></i> Submit Complaint';
+        }
+    }
+
+    function showError(msg) {
+        const errorMsg = document.getElementById('errorMsg');
+        errorMsg.textContent   = msg;
+        errorMsg.style.display = 'block';
+    }
+</script>
+</body>
+</html>

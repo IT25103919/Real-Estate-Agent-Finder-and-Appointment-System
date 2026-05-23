@@ -2,40 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <title>Appointments</title>
 
     <style>
 
         body{
-            font-family:Arial;
-            background:#f4f4f4;
-            padding:30px;
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 30px;
         }
 
         table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
         }
 
-        th,td{
-            border:1px solid #ddd;
-            padding:12px;
-            text-align:center;
+        th, td{
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
         }
 
         th{
-            background:#007bff;
-            color:white;
-        }
-
-        a{
-            text-decoration:none;
-            color:white;
-            background:green;
-            padding:8px 12px;
-            border-radius:5px;
+            background: #007bff;
+            color: white;
         }
 
     </style>
@@ -55,9 +46,7 @@
         <th>Agent</th>
         <th>Date</th>
         <th>Time</th>
-        <th>Meeting Type</th>
         <th>Status</th>
-        <th>Join</th>
     </tr>
 
     </thead>
@@ -70,7 +59,7 @@
 
 <script>
 
-    async function loadAppointments(){
+    async function loadAppointments() {
 
         const response = await fetch(
             "http://localhost:8080/appointments"
@@ -83,25 +72,17 @@
         appointments.forEach(a => {
 
             rows += `
-        <tr>
+            <tr>
 
-            <td>${a.id}</td>
-            <td>${a.clientId}</td>
-            <td>${a.agentId}</td>
-            <td>${a.date}</td>
-            <td>${a.time}</td>
-            <td>${a.meetingType}</td>
-            <td>${a.status}</td>
+                <td>${a.id}</td>
+                <td>${a.clientId}</td>
+                <td>${a.agentId}</td>
+                <td>${a.date}</td>
+                <td>${a.time}</td>
+                <td>${a.status}</td>
 
-            <td>
-                <a href="${a.meetingLink}"
-                   target="_blank">
-                   Join
-                </a>
-            </td>
-
-        </tr>
-        `;
+            </tr>
+            `;
         });
 
         document.getElementById("appointmentTable")

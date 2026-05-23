@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Notifications - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          /* EstateHub Theme Variables (Aligned with Admin Dashboard & Login) */
+          --primary: #2b6cb0;
+          --primary-hover: #2c5282;
+          --primary-light: #ebf8ff;
+          --gold: #c9a84c;
+          --gold-light: #f2d27b;
+          --bg-color: #f0f4f8;
+          --card-bg: #ffffff;
+          --text-main: #2d3748;
+          --text-muted: #718096;
+          --border-color: #e2e8f0;
+          --danger: #e53e3e;
+          --danger-light: #fed7d7;
+          --success: #38a169;
+          --success-light: #c6f6d5;
+          --sidebar-w: 260px;
+        }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--bg-color);
+          color: var(--text-main);
+          display: flex;
+          min-height: 100vh;
+          font-size: 14px;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+          width: var(--sidebar-w);
+          background: var(--card-bg);
+          border-right: 1px solid var(--border-color);
+          min-height: 100vh;
+          position: fixed;
+          top: 0; left: 0;
+          display: flex;
+          flex-direction: column;
+          z-index: 100;
+        }
+
+        /* BEAUTIFUL ESTATEHUB LOGO INTEGRATED */
+        .sidebar-logo {
+          padding: 24px 20px;
+          border-bottom: 1px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .logo-box {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, var(--gold), var(--gold-light));
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+          border: 1px solid rgba(255,255,255,0.15);
+          flex-shrink: 0;
+        }
+
+        .logo-box span {
+          font-size: 18px;
+          font-weight: 700;
+          color: #0f1f3d;
+          font-family: 'DM Serif Display', serif;
+        }
+
+        .logo-text {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .logo-text h2 {
+          color: var(--primary);
+          font-size: 20px;
+          font-family: 'DM Serif Display', serif;
+          letter-spacing: 0.5px;
+        }
+
+        .logo-text p {
+          color: var(--gold);
+          font-size: 9px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-top: 1px;
+          font-weight: bold;
+        }
+
+        .sidebar-nav {
+          padding: 15px 0;
+          flex: 1;
+        }
+
+        .nav-label {
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #a0aec0;
+          padding: 0 24px 8px;
+          margin-top: 12px;
+          font-weight: 600;
+        }
+
+        .filter-btn {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          background: none;
+          border: none;
+          padding: 12px 24px;
+          color: var(--text-main);
+          cursor: pointer;
+          transition: all 0.2s;
+          font-size: 14px;
+          font-weight: 500;
+          border-left: 4px solid transparent;
+          text-align: left;
+        }
+
+        .filter-btn:hover {
+          background: #f7fafc;
+          color: var(--primary);
+        }
+
+        .filter-btn.active {
+          background: var(--primary-light);
+          color: var(--primary);
+          border-left-color: var(--primary);
+          font-weight: 600;
+        }
+
+        .filter-btn i { width: 20px; font-size: 16px; text-align: center; margin-right: 8px;}
+
+        .filter-badge {
+          background: var(--primary);
+          color: white;
+          font-size: 11px;
+          font-weight: 700;
+          border-radius: 20px;
+          padding: 2px 8px;
+          min-width: 22px;
+          text-align: center;
+        }
+        .filter-badge.orange { background: #fb923c; }
+
+        /* OVERVIEW STATS IN SIDEBAR */
+        .sidebar-stats {
+          padding: 16px 20px;
+          border-top: 1px solid var(--border-color);
+          background: #fcfcfc;
+        }
+        .stat-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px;}
+        .stat-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 12px;
+          background: var(--bg-color);
+          border-radius: 8px;
+        }
+        .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500;}
+        .stat-value { font-size: 14px; font-weight: 700; }
+        .stat-value.accent { color: var(--primary); }
+        .stat-value.orange { color: #fb923c; }
+        .stat-value.green { color: var(--success); }
+
+        /* ── MAIN CONTENT ── */
+        .main {
+          margin-left: var(--sidebar-w);
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 32px;
+        }
+
+        .panel-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .panel-header h1 {
+          font-family: 'DM Serif Display', serif;
+          font-size: 28px;
+          color: var(--text-main);
+        }
+
+        .panel-header .sub {
+          font-size: 13px;
+          color: var(--text-muted);
+          margin-top: 4px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s;
+        }
+
+        .btn-primary {
+          background: var(--primary);
+          color: white;
+          box-shadow: 0 4px 12px rgba(43, 108, 176, 0.2);
+        }
+
+        .btn-primary:hover {
+          background: var(--primary-hover);
+          transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          color: var(--text-main);
+        }
+
+        .btn-ghost:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+          background: var(--primary-light);
+        }
+
+        /* ── NOTIFICATION CARDS ── */
+        .notif-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .notif-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+          transition: all 0.2s;
+          position: relative;
+          box-shadow: 0 4px 6px rgba(43, 108, 176, 0.02);
+          cursor: pointer;
+        }
+
+        .notif-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px rgba(43, 108, 176, 0.08);
+          border-color: var(--primary);
+        }
+
+        .notif-card.unread {
+          border-left: 4px solid var(--primary);
+          background: #fafcfd;
+        }
+
+        .unread-dot {
+          width: 8px;
+          height: 8px;
+          background: var(--primary);
+          border-radius: 50%;
+          flex-shrink: 0;
+          margin-top: 6px;
+        }
+
+        .notif-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        /* Modern Colored Notification Badges & Icons */
+        .icon-meeting { background: var(--primary-light); color: var(--primary); }
+        .icon-inquiry { background: #fffaf0; color: #dd6b20; }
+        .icon-cancel { background: var(--danger-light); color: var(--danger); }
+        .icon-new { background: var(--success-light); color: var(--success); }
+        .icon-general { background: #f7fafc; color: var(--text-muted); }
+
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-title { font-weight: 600; font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
+        .notif-msg { font-size: 14px; color: #4a5568; line-height: 1.5; margin-bottom: 10px; }
+
+        .notif-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 12px;
+          color: var(--text-muted);
+        }
+
+        .notif-badge {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+        }
+
+        .badge-meeting { background: var(--primary-light); color: var(--primary); }
+        .badge-inquiry { background: #feebc8; color: #c05621; }
+        .badge-cancel { background: var(--danger-light); color: var(--danger); }
+        .badge-new { background: var(--success-light); color: var(--success); }
+        .badge-general { background: #edf2f7; color: var(--text-muted); }
+
+        .notif-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+        .act-btn {
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 12px;
+          cursor: pointer;
+          border: none;
+          font-weight: 600;
+          transition: all 0.2s;
+        }
+
+        .act-read { background: var(--primary-light); color: var(--primary); }
+        .act-read:hover { background: #bee3f8; }
+        .act-del { background: var(--danger-light); color: var(--danger); }
+        .act-del:hover { background: #fed7d7; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; color: var(--primary); opacity: 0.3; }
+        .empty-state h3 { font-size: 16px; margin-bottom: 6px; color: var(--text-main); }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+          display: none;
+          position: fixed; inset: 0;
+          background: rgba(15, 31, 61, 0.6);
+          backdrop-filter: blur(4px);
+          z-index: 200;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+          background: white;
+          border-radius: 16px;
+          padding: 32px;
+          width: 460px;
+          max-width: 90vw;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal h2 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 15px; color: var(--text-main); }
+
+        .toggle-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 0;
+          border-bottom: 1px solid var(--border-color);
+        }
+        .toggle-row:last-of-type { border-bottom: none; }
+        .toggle-info .toggle-label { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .toggle-info .toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* SWITCH TOGGLE */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background: var(--border-color); border-radius: 24px; transition: .3s; }
+        .slider::before { position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider::before { transform: translateX(20px); }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+        /* ── TOAST ── */
+        .toast {
+          position: fixed; bottom: 32px; right: 32px;
+          background: white; color: var(--text-main);
+          padding: 16px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-left: 5px solid var(--success);
+          opacity: 0; transform: translateY(20px); transition: all 0.3s; z-index: 300; pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        .loader { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+        .loader i { animation: spin 1s linear infinite; margin-right: 8px; color: var(--primary); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box">
+            <span>EH</span>
+        </div>
+        <div class="logo-text">
+            <h2>EstateHub</h2>
+            <p>Luxury Real Estate</p>
+        </div>
+    </div>
+
+    <div class="sidebar-nav">
+        <div class="nav-label">Notification Filters</div>
+
+        <button class="filter-btn active" onclick="applyFilter('all',this)">
+            <span><i class="fa fa-bell"></i>All Notifications</span>
+            <span class="filter-badge" id="badge-all">0</span>
+        </button>
+
+        <button class="filter-btn" onclick="applyFilter('unread',this)">
+            <span><i class="fa-solid fa-circle-dot"></i>Unread</span>
+            <span class="filter-badge" id="badge-unread">0</span>
+        </button>
+
+        <button class="filter-btn" onclick="applyFilter('MEETING_REMINDER',this)">
+            <span><i class="fa fa-calendar-check"></i>Meetings</span>
+            <span class="filter-badge" id="badge-meeting">0</span>
+        </button>
+
+        <button class="filter-btn" onclick="applyFilter('INQUIRY_REMINDER',this)">
+            <span><i class="fa fa-hourglass-half"></i>Inquiries</span>
+            <span class="filter-badge orange" id="badge-inquiry">0</span>
+        </button>
+    </div>
+
+    <div class="sidebar-stats">
+        <div class="nav-label" style="padding: 0 4px 4px;">Overview</div>
+        <div class="stat-row">
+            <div class="stat-item"><span class="stat-label">Total</span><span class="stat-value accent" id="stat-total">0</span></div>
+            <div class="stat-item"><span class="stat-label">Unread</span><span class="stat-value orange" id="stat-unread">0</span></div>
+            <div class="stat-item"><span class="stat-label">Read</span><span class="stat-value green" id="stat-read">0</span></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="panel-header">
+        <div>
+            <h1>Notifications</h1>
+            <div class="sub" id="notifSubtitle">Loading notifications...</div>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <button class="btn btn-ghost" onclick="openSettings()"><i class="fa fa-gear"></i>Preferences</button>
+            <button class="btn btn-primary" onclick="markAllRead()"><i class="fa fa-check-double"></i>Mark All Read</button>
+        </div>
+    </div>
+
+    <div class="notif-list" id="notifList">
+        <div class="loader"><i class="fa fa-circle-notch"></i>Loading notifications...</div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+        <h2><i class="fa fa-gear" style="color:var(--primary); margin-right:8px;"></i>Preferences</h2>
+        <p>Configure how you'd like to receive your updates.</p>
+
+        <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-label">Meeting Reminders</div><div class="toggle-desc">Get notified about meetings scheduled for tomorrow</div></div>
+            <label class="switch"><input type="checkbox" id="tog-meeting" checked/><span class="slider"></span></label>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-label">Inquiry Reminders</div><div class="toggle-desc">Get reminded if your inquiry has no reply after 2 days</div></div>
+            <label class="switch"><input type="checkbox" id="tog-inquiry" checked/><span class="slider"></span></label>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-info"><div class="toggle-label">Email Notifications</div><div class="toggle-desc">Receive a copy of updates via your email address</div></div>
+            <label class="switch"><input type="checkbox" id="tog-email"/><span class="slider"></span></label>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveSettings()"><i class="fa fa-save"></i>Save Preferences</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa fa-circle-check" style="color:var(--success); margin-right: 8px;"></i><span id="toastMsg">Done!</span></div>
+
+<script>
+    const CURRENT_USER_ID = localStorage.getItem('userId') || 1;
+    const API_BASE='http://localhost:8080/api/notifications';
+    let allNotifications=[];
+    let currentFilter='all';
+
+    document.addEventListener('DOMContentLoaded',()=>{loadNotifications();loadSettings();});
+
+    async function loadNotifications(){
+      try{
+        const res=await fetch(`${API_BASE}/${CURRENT_USER_ID}`);
+        const data=await res.json();
+        allNotifications=data;
+      }catch(err){
+        allNotifications=getDemoNotifications();
+      }
+      renderNotifications(allNotifications);
+      updateStats(allNotifications);
+      updateBadges(allNotifications);
+    }
+
+    function renderNotifications(list){
+      const container=document.getElementById('notifList');
+      const filtered=filterList(list);
+      document.getElementById('notifSubtitle').textContent=`Showing ${filtered.length} notification${filtered.length!==1?'s':''}`;
+      if(filtered.length===0){container.innerHTML=`<div class="empty-state"><i class="fa fa-bell-slash"></i><h3>No notifications here</h3><p>You're all caught up!</p></div>`;return;}
+
+      container.innerHTML=filtered.map(n=>`
+        <div class="notif-card ${n.read?'':'unread'}" id="notif-${n.id}" onclick="markSingleRead(${n.id})">
+          ${!n.read?'<div class="unread-dot"></div>':''}
+          <div class="notif-icon ${iconClass(n.type)}"><i class="${iconFa(n.type)}"></i></div>
+          <div class="notif-body">
+            <div class="notif-title">${escHtml(n.title)}</div>
+            <div class="notif-msg">${escHtml(n.message)}</div>
+            <div class="notif-meta">
+              <span class="notif-badge ${badgeClass(n.type)}">${typeLabel(n.type)}</span>
+              <span><i class="fa fa-clock" style="margin-right:4px;"></i>${timeAgo(n.createdAt)}</span>
+            </div>
+            <div class="notif-actions">
+              ${!n.read?`<button class="act-btn act-read" onclick="event.stopPropagation();markSingleRead(${n.id})"><i class="fa fa-check"></i>Mark Read</button>`:''}
+              <button class="act-btn act-del" onclick="event.stopPropagation();deleteNotif(${n.id})"><i class="fa fa-trash"></i>Delete</button>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    function filterList(list){
+      if(currentFilter==='all')return list;
+      if(currentFilter==='unread')return list.filter(n=>!n.read);
+      return list.filter(n=>n.type===currentFilter);
+    }
+
+    function applyFilter(filter,btn){
+      currentFilter=filter;
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderNotifications(allNotifications);
+    }
+
+    async function markSingleRead(id){
+      const n=allNotifications.find(x=>x.id===id);
+      if(!n||n.read)return;
+      try{await fetch(`${API_BASE}/${id}/read`,{method:'PUT'});}catch(_){}
+      n.read=true;
+      renderNotifications(allNotifications);
+      updateStats(allNotifications);
+      updateBadges(allNotifications);
+    }
+
+    async function markAllRead(){
+      try{await fetch(`${API_BASE}/${CURRENT_USER_ID}/read-all`,{method:'PUT'});}catch(_){}
+      allNotifications.forEach(n=>n.read=true);
+      renderNotifications(allNotifications);
+      updateStats(allNotifications);
+      updateBadges(allNotifications);
+      showToast('All notifications marked as read');
+    }
+
+    async function deleteNotif(id){
+      try{await fetch(`${API_BASE}/${id}`,{method:'DELETE'});}catch(_){}
+      allNotifications=allNotifications.filter(n=>n.id!==id);
+      renderNotifications(allNotifications);
+      updateStats(allNotifications);
+      updateBadges(allNotifications);
+      showToast('Notification deleted');
+    }
+
+    function updateStats(list){
+      const total=list.length;
+      const unread=list.filter(n=>!n.read).length;
+      document.getElementById('stat-total').textContent=total;
+      document.getElementById('stat-unread').textContent=unread;
+      document.getElementById('stat-read').textContent=total-unread;
+    }
+
+    function updateBadges(list){
+      document.getElementById('badge-all').textContent=list.length;
+      document.getElementById('badge-unread').textContent=list.filter(n=>!n.read).length;
+      document.getElementById('badge-meeting').textContent=list.filter(n=>n.type==='MEETING_REMINDER').length;
+      document.getElementById('badge-inquiry').textContent=list.filter(n=>n.type==='INQUIRY_REMINDER').length;
+    }
+
+    async function loadSettings(){
+      try{
+        const res=await fetch(`${API_BASE}/${CURRENT_USER_ID}/settings`);
+        const data=await res.json();
+        document.getElementById('tog-meeting').checked=data.meetingReminders;
+        document.getElementById('tog-inquiry').checked=data.inquiryReminders;
+        document.getElementById('tog-email').checked=data.emailNotifications;
+      }catch(_){}
+    }
+
+    async function saveSettings(){
+      const body={meetingReminders:document.getElementById('tog-meeting').checked,inquiryReminders:document.getElementById('tog-inquiry').checked,emailNotifications:document.getElementById('tog-email').checked};
+      try{await fetch(`${API_BASE}/${CURRENT_USER_ID}/settings`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}catch(_){}
+      closeSettings();
+      showToast('Preferences saved successfully');
+    }
+
+    function openSettings(){document.getElementById('settingsModal').classList.add('open');}
+    function closeSettings(){document.getElementById('settingsModal').classList.remove('remove'); document.getElementById('settingsModal').classList.remove('open');}
+    document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
+
+    let toastTimer;
+    function showToast(msg){
+      clearTimeout(toastTimer);
+      const t=document.getElementById('toast');
+      document.getElementById('toastMsg').textContent=msg;
+      t.classList.add('show');
+      toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+    }
+
+    function iconClass(type){const m={MEETING_REMINDER:'icon-meeting',INQUIRY_REMINDER:'icon-inquiry',APPOINTMENT_CANCELLED:'icon-cancel',NEW_INQUIRY:'icon-new',GENERAL:'icon-general'};return m[type]||'icon-general';}
+    function iconFa(type){const m={MEETING_REMINDER:'fa fa-calendar-check',INQUIRY_REMINDER:'fa fa-hourglass-half',APPOINTMENT_CANCELLED:'fa fa-calendar-xmark',NEW_INQUIRY:'fa fa-envelope',GENERAL:'fa fa-bell'};return m[type]||'fa fa-bell';}
+    function badgeClass(type){const m={MEETING_REMINDER:'badge-meeting',INQUIRY_REMINDER:'badge-inquiry',APPOINTMENT_CANCELLED:'badge-cancel',NEW_INQUIRY:'badge-new',GENERAL:'badge-general'};return m[type]||'badge-general';}
+    function typeLabel(type){const m={MEETING_REMINDER:'Meeting',INQUIRY_REMINDER:'Inquiry',APPOINTMENT_CANCELLED:'Cancelled',NEW_INQUIRY:'New Inquiry',GENERAL:'General'};return m[type]||type;}
+
+    function timeAgo(dt){
+      if(!dt)return'Just now';
+      const d=new Date(dt);
+      const diff=Math.floor((Date.now()-d)/1000);
+      if(diff<60)return'Just now';
+      if(diff<3600)return`${Math.floor(diff/60)} min ago`;
+      if(diff<86400)return`${Math.floor(diff/3600)} hr ago`;
+      return`${Math.floor(diff/86400)} days ago`;
+    }
+
+    function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+    function getDemoNotifications(){
+      const now=new Date();
+      const h=hr=>new Date(now-hr*3600000).toISOString();
+      return[
+        {id:1,type:'MEETING_REMINDER',title:'Meeting Tomorrow – Kamal Silva',message:'You have a meeting scheduled with Kamal Silva tomorrow at 10:00 AM.',read:false,createdAt:h(1)},
+        {id:2,type:'INQUIRY_REMINDER',title:'Pending Inquiry – No Reply Yet',message:'Your inquiry to Kamal Silva sent 3 days ago has not received a reply.',read:false,createdAt:h(5)},
+        {id:3,type:'MEETING_REMINDER',title:'Upcoming Appointment',message:'You have a meeting scheduled with Nimal Jayantha in 2 days.',read:true,createdAt:h(12)},
+        {id:4,type:'APPOINTMENT_CANCELLED',title:'Meeting Cancelled',message:'Your meeting scheduled for last Monday was cancelled by the agent.',read:true,createdAt:h(36)},
+        {id:5,type:'NEW_INQUIRY',title:'New Property Inquiry',message:'A client has sent you a message about the property listing at Nugegoda.',read:false,createdAt:h(2)},
+      ];
+    }
+</script>
+</body>
+</html>

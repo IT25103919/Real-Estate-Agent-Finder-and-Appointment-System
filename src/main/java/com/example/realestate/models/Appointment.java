@@ -13,22 +13,19 @@ public class Appointment {
     private String agentId;
     private String date;
     private String time;
-    private String meetingType;
-    private String meetingLink;
+
     private String status;
     private String notes;
 
     public Appointment() {
     }
 
-    public Appointment(String clientId, String agentId, String date, String time,String meetingType,
-                       String meetingLink, String status, String notes) {
+    public Appointment(String clientId, String agentId, String date, String time,
+                       String status, String notes) {
         this.clientId = clientId;
         this.agentId = agentId;
         this.date = date;
         this.time = time;
-        this.meetingType = meetingType;
-        this.meetingLink = meetingLink;
         this.status = status;
         this.notes = notes;
     }
@@ -73,21 +70,6 @@ public class Appointment {
         this.time = time;
     }
 
-    public String getMeetingType() {
-        return meetingType;
-    }
-
-    public void setMeetingType(String meetingType) {
-        this.meetingType = meetingType;
-    }
-
-    public String getMeetingLink() {
-        return meetingLink;
-    }
-
-    public void setMeetingLink(String meetingLink) {
-        this.meetingLink = meetingLink;
-    }
 
     public String getStatus() {
 
@@ -106,5 +88,3 @@ public class Appointment {
         this.notes = notes;
     }
 }
-
-

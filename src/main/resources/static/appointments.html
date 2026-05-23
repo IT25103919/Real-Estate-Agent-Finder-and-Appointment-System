@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Appointments</title>
+  <style>
+    :root{
+        --bg-dark: #0a162c;
+        --glass-bg: rgba(255,255,255,0.03);
+        --glass-border: rgba(255,255,255,0.08);
+        --gold: #c9a84c;
+        --accent: #0b66c2;
+        --text: #ffffff;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+        margin:0;
+        min-height:100vh;
+        font-family: 'Inter', Arial, sans-serif;
+        background: linear-gradient(to bottom, rgba(10,22,44,0.94), rgba(20,52,92,0.88)),
+                    url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+        color:var(--text);
+        padding:40px 20px;
+        display:flex;
+        align-items:flex-start;
+        justify-content:center;
+    }
+
+    .container{
+        width:100%;
+        max-width:1200px;
+        background:var(--glass-bg);
+        border:1px solid var(--glass-border);
+        border-radius:14px;
+        padding:22px;
+        box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+    }
+
+    h2{margin:0 0 18px 0;color:var(--text);font-family:'DM Serif Display', serif}
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        background:transparent;
+    }
+
+    th,td{
+        padding:12px 14px;
+        text-align:center;
+        border-bottom:1px solid rgba(255,255,255,0.04);
+        color:var(--text);
+        font-size:14px;
+    }
+
+    th{
+        background: linear-gradient(90deg,var(--accent), #2b9df4);
+        color:var(--text);
+        font-weight:700;
+    }
+
+    tr:nth-child(odd) td{background:rgba(255,255,255,0.02)}
+
+    button{
+        padding:6px 8px;
+        margin:0 4px 4px 0;
+        border-radius:4px;
+        border:1px solid rgba(0,0,0,0.1);
+        cursor:pointer;
+        background:transparent;
+        color:var(--text);
+    }
+
+    button[onclick*="deleteAppointment"]{background:#c92121;color:#fff;border:none;padding:6px 8px}
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Appointments</h2>
+
+    <div style="overflow:auto">
+        <table>
+                <thead id="apptHeader"></thead>
+            <tbody id="appointmentTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+  async function resolveClientName(a, isClient) {
+      if (a.clientName) return a.clientName;
+      if (isClient) return localStorage.getItem('userName') || a.clientId || 'Unknown';
+      if (!a.clientId) return 'Unknown';
+      try {
+          const res = await fetch(`http://localhost:8080/api/client/profile/${a.clientId}`);
+          if (res.ok) {
+              const client = await res.json();
+              return client.fullName || a.clientId;
+          }
+      } catch (err) {
+          console.debug('Client profile lookup failed for', a.clientId, err);
+      }
+      return a.clientId || 'Unknown';
+  }
+
+  async function resolveAgentName(a, isAgent) {
+      if (a.agentName) return a.agentName;
+      if (isAgent) return localStorage.getItem('userName') || a.agentId || 'Unknown';
+      if (!a.agentId) return 'Unknown';
+      try {
+          const res = await fetch(`http://localhost:8080/api/agents/${a.agentId}`);
+          if (res.ok) {
+              const agent = await res.json();
+              return agent.fullName || a.agentId;
+          }
+      } catch (err) {
+          console.debug('Agent lookup failed for', a.agentId, err);
+      }
+      return a.agentId || 'Unknown';
+  }
+
+  async function loadAppointments(){
+      try {
+          const normalizeAppUserId = (id, prefix) => {
+              const str = String(id || '').trim();
+              if (/^[0-9]+$/.test(str)) return `${prefix}${str.padStart(3, '0')}`;
+              if (str.toUpperCase().startsWith(prefix)) return str.toUpperCase();
+              return str;
+          };
+
+          const userId = localStorage.getItem('userId');
+          const userRole = String(localStorage.getItem('userRole') || '').toUpperCase();
+          const isAgent = userRole === 'AGENT';
+          const isClient = userRole === 'CLIENT';
+
+          const colCount = isAgent ? 7 : 6;
+
+          if (!userId || (!isAgent && !isClient && userRole !== 'ADMIN')) {
+              document.getElementById("appointmentTable").innerHTML = `<tr><td colspan='${colCount}'>Please log in to view your appointments.</td></tr>`;
+              return;
+          }
+
+          // Build header based on role (clients don't need Actions column)
+          const headerHtml = isAgent ? `
+                <tr>
+                    <th>ID</th>
+                    <th>Client Name</th>
+                    <th>Agent Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+          ` : `
+                <tr>
+                    <th>ID</th>
+                    <th>Client Name</th>
+                    <th>Agent Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+          `;
+          document.getElementById('apptHeader').innerHTML = headerHtml;
+
+          // Fetch enriched appointments from server. Use client-specific enriched route when client is logged in
+          let response;
+          if (isClient) {
+              // try both prefixed and raw numeric forms
+              const tryPaths = [];
+              const up = normalizeAppUserId(userId, 'C');
+              tryPaths.push(`http://localhost:8080/appointments/enriched/client/${encodeURIComponent(up)}`);
+              tryPaths.push(`http://localhost:8080/appointments/enriched/client/${encodeURIComponent(userId)}`);
+
+              let resObj = null;
+              for (const p of tryPaths) {
+                  try {
+                      const r = await fetch(p);
+                      if (r.ok) { resObj = r; break; }
+                  } catch (e) { console.debug('client enriched fetch failed for', p, e); }
+              }
+              if (!resObj) {
+                  // fallback to getting all enriched and filtering client-side
+                  console.debug('Client-specific enriched endpoint not available; falling back to all enriched');
+                  response = await fetch("http://localhost:8080/appointments/enriched");
+              } else response = resObj;
+          } else if (isAgent) {
+              const up = normalizeAppUserId(userId, 'A');
+              const agentPath = `http://localhost:8080/appointments/enriched/agent/${encodeURIComponent(up)}`;
+              try {
+                  response = await fetch(agentPath);
+              } catch (e) {
+                  console.debug('Agent-specific enriched fetch failed, falling back to all enriched', e);
+                  response = await fetch("http://localhost:8080/appointments/enriched");
+              }
+          } else {
+              response = await fetch("http://localhost:8080/appointments/enriched");
+          }
+
+          const appointments = await response.json();
+
+          const candidateClientId = isClient ? normalizeAppUserId(userId, 'C') : null;
+          const candidateAgentId = isAgent ? normalizeAppUserId(userId, 'A') : null;
+          const userName = (localStorage.getItem('userName') || '').trim();
+
+          const extractDigits = s => {
+              if (!s) return null;
+              const m = String(s).match(/(\d+)/);
+              return m ? m[1].replace(/^0+/, '') : null; // normalize '002' -> '2'
+          };
+
+          const visibleAppointments = appointments.filter(a => {
+              if (isClient) {
+                  const apCidRaw = (a.clientId || '').toString().trim();
+                  const apCidUpper = apCidRaw.toUpperCase();
+                  const apCidDigits = extractDigits(apCidRaw);
+
+                  const candDigits = extractDigits(userId);
+                  // Match if normalized prefixed id equals (C001), or digits match, or clientName equals userName
+                  if (candidateClientId && apCidUpper === candidateClientId) return true;
+                  if (apCidDigits && candDigits && apCidDigits === candDigits) return true;
+                  if (a.clientName && userName && a.clientName.trim() === userName) return true;
+                  // fallback: if appointment stored numeric string equals userId raw
+                  if (apCidRaw === userId) return true;
+                  return false;
+              }
+              if (isAgent) {
+                  const apAidRaw = (a.agentId || '').toString().trim();
+                  const apAidUpper = apAidRaw.toUpperCase();
+                  const apAidDigits = extractDigits(apAidRaw);
+
+                  const candDigits = extractDigits(userId);
+                  if (candidateAgentId && apAidUpper === candidateAgentId) return true;
+                  if (apAidDigits && candDigits && apAidDigits === candDigits) return true;
+                  if (a.agentName && userName && a.agentName.trim() === userName) return true;
+                  if (apAidRaw === userId) return true;
+                  return false;
+              }
+              return true; // admin sees all
+          });
+
+          // Build rows by resolving client and agent names for each appointment
+          const rowsArr = await Promise.all(visibleAppointments.map(async (a) => {
+              const datePart = a.date && a.date.trim() ? a.date : 'N/A';
+              const timePart = a.time && a.time.trim() ? a.time : 'N/A';
+
+              const clientName = await resolveClientName(a, isClient);
+              const agentName = await resolveAgentName(a, isAgent);
+
+              if (isAgent) {
+                  const actionButtons = `
+                      <button onclick="updateAppointment(${a.id}, 'approve')">Approve</button>
+                      <button onclick="updateAppointment(${a.id}, 'complete')">Complete</button>
+                      <button onclick="updateAppointment(${a.id}, 'reject')">Reject</button>
+                      <button onclick="deleteAppointment(${a.id})" style="background:red;color:white;margin-left:6px">Delete</button>
+                  `;
+
+                  return `
+                  <tr>
+                      <td>${a.id}</td>
+                      <td>${clientName}</td>
+                      <td>${agentName}</td>
+                      <td>${datePart}</td>
+                      <td>${timePart}</td>
+                      <td>${a.status}</td>
+                      <td>${actionButtons}</td>
+                  </tr>
+                  `;
+              }
+
+              // Client or admin (without actions column for clients)
+              return `
+              <tr>
+                  <td>${a.id}</td>
+                  <td>${clientName}</td>
+                  <td>${agentName}</td>
+                  <td>${datePart}</td>
+                  <td>${timePart}</td>
+                  <td>${a.status}</td>
+              </tr>
+              `;
+          }));
+
+          document.getElementById("appointmentTable").innerHTML = rowsArr.join('');
+
+      } catch (error) {
+          console.error("Error loading appointments:", error);
+          document.getElementById("appointmentTable").innerHTML = "<tr><td colspan='7'>Failed to load data. Is the server running?</td></tr>";
+      }
+  }
+
+  loadAppointments();
+
+  async function updateAppointment(id, action) {
+      try {
+          const res = await fetch(`http://localhost:8080/appointments/${id}/${action}`, {
+              method: 'PUT'
+          });
+          if (!res.ok) {
+              const data = await res.json().catch(()=>({}));
+              throw new Error(data.error || 'Update failed');
+          }
+          await loadAppointments();
+      } catch (err) {
+          console.error('Update error:', err);
+          alert('Update failed: ' + err.message);
+      }
+  }
+
+  async function deleteAppointment(id) {
+      if (!confirm('Delete appointment #' + id + '?')) return;
+      try {
+          const res = await fetch(`http://localhost:8080/appointments/${id}`, { method: 'DELETE' });
+          if (!res.ok) {
+              const data = await res.json().catch(()=>({}));
+              throw new Error(data.error || 'Delete failed');
+          }
+          await loadAppointments();
+      } catch (err) {
+          console.error('Delete error:', err);
+          alert('Delete failed: ' + err.message);
+      }
+  }
+</script>
+
+</body>
+</html>
