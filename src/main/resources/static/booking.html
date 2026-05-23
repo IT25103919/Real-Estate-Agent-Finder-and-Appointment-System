@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Virtual Appointment - EstateHub</title>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2b6cb0;
+            --primary-hover: #2c5282;
+            --gold: #c9a84c;
+            --gold-light: #f2d27b;
+            --bg-dark: #0a162c;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.09);
+            --text-white: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, rgba(10, 22, 44, 0.94), rgba(20, 52, 92, 0.88)),
+                        url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-white);
+        }
+
+        .booking-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo Branding */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+        .logo-box span {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--bg-dark);
+            font-family: 'DM Serif Display', serif;
+        }
+
+        .logo-text {
+            text-align: left;
+        }
+
+        .logo-text h2 {
+            font-size: 22px;
+            font-family: 'DM Serif Display', serif;
+            letter-spacing: 0.5px;
+            color: var(--text-white);
+            line-height: 1.1;
+        }
+
+        .logo-text p {
+            color: var(--gold-light);
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .booking-card h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            text-align: center;
+            color: var(--text-white);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-white);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        /* Readonly Field Styling */
+        input[readonly] {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gold-light);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(242, 210, 123, 0.15);
+        }
+
+        .input-wrapper input:focus + i,
+        .input-wrapper select:focus + i,
+        .input-wrapper textarea:focus + i {
+            color: var(--gold-light);
+        }
+
+        /* Grid layout for date and time */
+        .datetime-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Select custom arrow */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .select-wrapper::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+            height: 90px;
+            padding-top: 12px;
+        }
+
+        /* Beautiful Dynamic Badge styling for client / agent profiles */
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-white);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-badge img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--gold-light);
+        }
+
+        .profile-badge i.fallback-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-style: normal;
+            font-size: 11px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .profile-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Primary Button */
+        button.btn-submit {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--bg-dark);
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(201, 168, 76, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button.btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(201, 168, 76, 0.35);
+            background: linear-gradient(135deg, var(--gold-light), #fff);
+        }
+
+        button.btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* custom toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 22, 44, 0.95);
+            border: 1px solid var(--gold-light);
+            border-left: 6px solid var(--gold);
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: var(--text-white);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            color: var(--gold-light);
+            font-size: 20px;
+        }
+
+        .toast-content h4 {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .toast-content p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Form Validation Error Styles */
+        .field-error {
+            display: block;
+            color: #f56565;
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 6px;
+            margin-left: 4px;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="booking-card">
+        <div class="brand-header">
+            <div class="logo-box"><span>EH</span></div>
+            <div class="logo-text">
+                <h2>EstateHub</h2>
+                <p>Luxury Real Estate</p>
+            </div>
+        </div>
+
+        <h1>Book Virtual Appointment</h1>
+
+        <form id="appointmentForm">
+            <!-- Client ID -->
+            <div class="input-group">
+                <label for="clientId">Client Account</label>
+                <div class="input-wrapper">
+                    <input type="text" id="clientId" placeholder="Client ID" readonly required>
+                    <i class="fa fa-user-shield"></i>
+                </div>
+                <span class="field-error" id="error-clientId" style="display: none;"></span>
+                <div id="clientBadge" class="profile-badge" style="display: none;">
+                    <i class="fallback-avatar" id="clientAvatar">C</i>
+                    <div class="profile-info">
+                        <span class="profile-name" id="clientName">Loading...</span>
+                        <span class="profile-meta" id="clientMeta">Preferred Client</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent ID -->
+            <div class="input-group">
+                <label for="agentId">Assigned Agent</label>
+                <div class="input-wrapper">
+                    <input type="text" id="agentId" placeholder="Agent ID" readonly required>
+                    <i class="fa fa-handshake"></i>
+                </div>
+                <span class="field-error" id="error-agentId" style="display: none;"></span>
+                <div id="agentBadge" class="profile-badge" style="display: none;">
+                    <img id="agentPhoto" src="" alt="Agent Photo" style="display: none;">
+                    <i class="fallback-avatar" id="agentAvatar" style="display: none;">A</i>
+                    <div class="profile-info">
+                        <span class="profile-name" id="agentName">Loading Agent Details...</span>
+                        <span class="profile-meta" id="agentMeta">Licensed Representative</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time Grid -->
+            <div class="datetime-grid">
+                <div class="input-group">
+                    <label for="date">Appointment Date</label>
+                    <div class="input-wrapper">
+                        <input type="date" id="date" required>
+                        <i class="fa fa-calendar-days"></i>
+                    </div>
+                    <span class="field-error" id="error-date" style="display: none;"></span>
+                </div>
+
+                <div class="input-group">
+                    <label for="time">Preferred Time</label>
+                    <div class="input-wrapper">
+                        <input type="time" id="time" required>
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <span class="field-error" id="error-time" style="display: none;"></span>
+                </div>
+            </div>
+
+            <!-- Meeting Type Dropdown -->
+            <div class="input-group">
+                <label for="meetingType">Platform Type</label>
+                <div class="select-wrapper input-wrapper">
+                    <select id="meetingType">
+                        <option>Google Meet</option>
+                        <option>Zoom</option>
+                        <option>Microsoft Teams</option>
+                    </select>
+                    <i class="fa fa-video"></i>
+                </div>
+                <span class="field-error" id="error-meetingType" style="display: none;"></span>
+            </div>
+
+            <!-- Meeting Link -->
+            <div class="input-group">
+                <label for="meetingLink">Platform URL / Meeting Link</label>
+                <div class="input-wrapper">
+                    <input type="text" id="meetingLink" placeholder="https://meet.google.com/xyz-abc">
+                    <i class="fa fa-link"></i>
+                </div>
+                <span class="field-error" id="error-meetingLink" style="display: none;"></span>
+            </div>
+
+            <!-- Notes -->
+            <div class="input-group">
+                <label for="notes">Special Requirements / Notes</label>
+                <div class="input-wrapper">
+                    <textarea id="notes" placeholder="Describe any preferences or requirements..."></textarea>
+                    <i class="fa fa-note-sticky"></i>
+                </div>
+                <span class="field-error" id="error-notes" style="display: none;"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">
+                <i class="fa fa-paper-plane"></i>
+                Book Virtual Appointment
+            </button>
+        </form>
+    </div>
+
+    <!-- Custom Toast Message -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <div class="toast-content">
+            <h4 id="toastTitle">Success!</h4>
+            <p id="toastMessage">Appointment has been scheduled successfully.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Retrieve ID parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const agentId = urlParams.get('agentId');
+            const clientId = localStorage.getItem('userId');
+
+            // Populate form inputs
+            const clientInput = document.getElementById("clientId");
+            const agentInput = document.getElementById("agentId");
+
+            if (clientId) {
+                clientInput.value = clientId;
+                // Fetch dynamic client information
+                fetchClientDetails(clientId);
+            } else {
+                clientInput.placeholder = "Not Logged In";
+                showToast("Attention", "Please log in first to schedule an appointment.", "fa-triangle-exclamation");
+            }
+
+            if (agentId) {
+                agentInput.value = agentId;
+                // Fetch dynamic agent information
+                fetchAgentDetails(agentId);
+            } else {
+                agentInput.value = "";
+                agentInput.placeholder = "No Agent Selected";
+                agentInput.readOnly = false; // Allow manual fallback if no parameter is provided
+            }
+        });
+
+        async function fetchClientDetails(id) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/client/profile/${id}`);
+                if (response.ok) {
+                    const client = await response.json();
+                    
+                    document.getElementById("clientName").textContent = client.fullName || "Valued Client";
+                    if (client.phone) {
+                        document.getElementById("clientMeta").textContent = `Phone: ${client.phone}`;
+                    } else if (client.preferredPropertyType) {
+                        document.getElementById("clientMeta").textContent = `Prefers: ${client.preferredPropertyType}`;
+                    } else {
+                        document.getElementById("clientMeta").textContent = "EstateHub Client";
+                    }
+
+                    // Generate Avatar Initials
+                    const initials = getInitials(client.fullName || "C");
+                    document.getElementById("clientAvatar").textContent = initials;
+                    document.getElementById("clientBadge").style.display = "flex";
+                }
+            } catch (err) {
+                console.error("Error fetching client details:", err);
+                document.getElementById("clientBadge").style.display = "none";
+            }
+        }
+
+        async function fetchAgentDetails(id) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/agents/${id}`);
+                if (response.ok) {
+                    const agent = await response.json();
+                    
+                    document.getElementById("agentName").textContent = agent.fullName || "Agent Representative";
+                    document.getElementById("agentMeta").textContent = agent.location ? `Location: ${agent.location}` : `Representative ID: ${id}`;
+
+                    const imgElement = document.getElementById("agentPhoto");
+                    const avatarElement = document.getElementById("agentAvatar");
+
+                    if (agent.photo && agent.photo.trim() !== "") {
+                        imgElement.src = agent.photo.startsWith('data:') ? agent.photo : `data:image/png;base64,${agent.photo}`;
+                        imgElement.style.display = "block";
+                        avatarElement.style.display = "none";
+                    } else {
+                        avatarElement.textContent = getInitials(agent.fullName || "A");
+                        avatarElement.style.display = "flex";
+                        imgElement.style.display = "none";
+                    }
+
+                    document.getElementById("agentBadge").style.display = "flex";
+                }
+            } catch (err) {
+                console.error("Error fetching agent details:", err);
+                // Graceful fallback display
+                document.getElementById("agentName").textContent = "Agent ID: " + id;
+                document.getElementById("agentAvatar").textContent = "A";
+                document.getElementById("agentAvatar").style.display = "flex";
+                document.getElementById("agentBadge").style.display = "flex";
+            }
+        }
+
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(word => word[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+        }
+
+        // ── Helper: show or clear a field-level error ──────────────────────────
+        function showFieldError(fieldId, message) {
+            const el = document.getElementById("error-" + fieldId);
+            const input = document.getElementById(fieldId);
+            if (el) {
+                el.textContent = "⚠ " + message;
+                el.style.display = "block";
+                // re-trigger shake animation
+                el.style.animation = "none";
+                el.offsetHeight; // reflow
+                el.style.animation = "";
+            }
+            if (input) {
+                input.style.borderColor = "#fc8181";
+                input.style.boxShadow  = "0 0 0 4px rgba(252,129,129,0.18)";
+            }
+        }
+
+        function clearFieldError(fieldId) {
+            const el = document.getElementById("error-" + fieldId);
+            const input = document.getElementById(fieldId);
+            if (el) {
+                el.textContent = "";
+                el.style.display = "none";
+            }
+            if (input) {
+                input.style.borderColor = "";
+                input.style.boxShadow  = "";
+            }
+        }
+
+        function clearAllErrors() {
+            ["clientId","agentId","date","time","meetingType","meetingLink","notes"].forEach(clearFieldError);
+        }
+
+        // ── Live per-field validation on blur ──────────────────────────────────
+        document.getElementById("date").addEventListener("change", function() {
+            const val = this.value;
+            if (!val) { showFieldError("date", "Appointment date is required."); return; }
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (new Date(val) < today) { showFieldError("date", "Date cannot be in the past."); return; }
+            clearFieldError("date");
+        });
+
+        document.getElementById("time").addEventListener("change", function() {
+            const timeVal = this.value;
+            if (!timeVal) { showFieldError("time", "Please select a preferred time."); return; }
+            // Allow only 08:00 – 20:00
+            const [h, m] = timeVal.split(":").map(Number);
+            if (h < 8 || h >= 20) { showFieldError("time", "Please select a time between 8:00 AM and 8:00 PM."); return; }
+            // Check if chosen date is today and time has already passed
+            const dateVal = document.getElementById("date").value;
+            if (dateVal) {
+                const chosen = new Date(dateVal + "T" + timeVal);
+                if (chosen < new Date()) { showFieldError("time", "Selected time has already passed."); return; }
+            }
+            clearFieldError("time");
+        });
+
+        document.getElementById("meetingLink").addEventListener("blur", function() {
+            const val = this.value.trim();
+            if (!val) { showFieldError("meetingLink", "Please provide a meeting link."); return; }
+            const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
+            if (!urlPattern.test(val)) { showFieldError("meetingLink", "Enter a valid URL (must start with http:// or https://)."); return; }
+            clearFieldError("meetingLink");
+        });
+
+        document.getElementById("notes").addEventListener("blur", function() {
+            const val = this.value.trim();
+            if (val.length > 500) { showFieldError("notes", "Notes cannot exceed 500 characters."); return; }
+            clearFieldError("notes");
+        });
+
+        // ── Custom Beautiful Toast Alert ───────────────────────────────────────
+        function showToast(title, message, iconClass = "fa-circle-check") {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastTitle").textContent = title;
+            document.getElementById("toastMessage").textContent = message;
+
+            const icon = toast.querySelector("i");
+            icon.className = `fa-solid ${iconClass}`;
+
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 4000);
+        }
+
+        // ── Master Validation ─────────────────────────────────────────────────
+        function validateForm(appointment) {
+            clearAllErrors();
+            let valid = true;
+
+            // Client ID
+            if (!appointment.clientId || appointment.clientId.trim() === "") {
+                showFieldError("clientId", "You must be logged in to book an appointment.");
+                valid = false;
+            }
+
+            // Agent ID
+            if (!appointment.agentId || appointment.agentId.trim() === "") {
+                showFieldError("agentId", "No agent selected. Go back and choose an agent.");
+                valid = false;
+            }
+
+            // Date
+            if (!appointment.date) {
+                showFieldError("date", "Appointment date is required.");
+                valid = false;
+            } else {
+                const today = new Date(); today.setHours(0,0,0,0);
+                if (new Date(appointment.date) < today) {
+                    showFieldError("date", "Date cannot be in the past.");
+                    valid = false;
+                }
+            }
+
+            // Time
+            if (!appointment.time) {
+                showFieldError("time", "Please select a preferred time.");
+                valid = false;
+            } else {
+                const [h] = appointment.time.split(":").map(Number);
+                if (h < 8 || h >= 20) {
+                    showFieldError("time", "Please select a time between 8:00 AM and 8:00 PM.");
+                    valid = false;
+                } else if (appointment.date) {
+                    const chosen = new Date(appointment.date + "T" + appointment.time);
+                    if (chosen < new Date()) {
+                        showFieldError("time", "Selected date and time has already passed.");
+                        valid = false;
+                    }
+                }
+            }
+
+            // Meeting Link
+            if (!appointment.meetingLink || appointment.meetingLink.trim() === "") {
+                showFieldError("meetingLink", "Please provide a meeting link.");
+                valid = false;
+            } else {
+                const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
+                if (!urlPattern.test(appointment.meetingLink.trim())) {
+                    showFieldError("meetingLink", "Enter a valid URL (must start with http:// or https://).");
+                    valid = false;
+                }
+            }
+
+            // Notes length
+            if (appointment.notes && appointment.notes.trim().length > 500) {
+                showFieldError("notes", "Notes cannot exceed 500 characters.");
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        // ── Form Submit Handler ────────────────────────────────────────────────
+        document.getElementById("appointmentForm")
+            .addEventListener("submit", async function(e) {
+                e.preventDefault();
+
+                const appointment = {
+                    clientId:    document.getElementById("clientId").value.trim(),
+                    agentId:     document.getElementById("agentId").value.trim(),
+                    date:        document.getElementById("date").value,
+                    time:        document.getElementById("time").value,
+                    meetingType: document.getElementById("meetingType").value,
+                    meetingLink: document.getElementById("meetingLink").value.trim(),
+                    notes:       document.getElementById("notes").value.trim()
+                };
+
+                // Run full validation before submitting
+                if (!validateForm(appointment)) {
+                    showToast("Please Fix Errors", "Check the highlighted fields before submitting.", "fa-triangle-exclamation");
+                    return;
+                }
+
+                try {
+                    const response = await fetch("http://localhost:8080/appointments", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(appointment)
+                    });
+
+                    if (response.ok) {
+                        showToast("Success!", "Appointment booked successfully! Redirecting...");
+                        setTimeout(() => {
+                            window.location.href = "appointments.html";
+                        }, 2000);
+                    } else {
+                        let errMsg = "Selected slot is not available.";
+                        try {
+                            const data = await response.json();
+                            errMsg = data.error || data.message || errMsg;
+                        } catch (_) {
+                            try {
+                                const txt = await response.text();
+                                if (txt) errMsg = txt;
+                            } catch (__) {}
+                        }
+                        showToast("Booking Failed", errMsg, "fa-circle-xmark");
+                    }
+                } catch (error) {
+                    console.error("Booking Error:", error);
+                    showToast("Error", "Server error, check backend status.", "fa-circle-xmark");
+                }
+            });
+    </script>
+</body>
+</html>

@@ -1,8 +1,6 @@
 package com.example.realestate.service;
 
-import com.example.realestate.models.Appointment;
 import com.example.realestate.models.Notification;
-import com.example.realestate.repositories.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

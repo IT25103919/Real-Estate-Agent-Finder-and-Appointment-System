@@ -33,8 +33,8 @@ public class AgentDashboardController {
         return ResponseEntity.ok(opt.get());
     }
 
-    // ── UPDATE AGENT PROFILE ──────────────────────
-    // PUT /api/agent/{id}/profile
+    // ── UPDATE AGENT PROFILE
+
     // Body: { "fullName","bio","location","licenseNumber","photo" }
     @PutMapping("/{id}/profile")
     public ResponseEntity<Map<String, String>> updateProfile(
