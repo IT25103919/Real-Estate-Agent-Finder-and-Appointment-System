@@ -85,130 +85,13 @@
         .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43,108,176,0.1); }
         .form-msg { font-size: 13px; margin-top: 4px; min-height: 18px; }
 
-        /* ── REVIEWS ── */
-        .reviews-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        .reviews-search {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: var(--card-bg);
-        }
-        .reviews-search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43,108,176,0.1); }
-        .filter-select {
-            padding: 10px 14px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            background: var(--card-bg);
-            color: var(--text-main);
-            outline: none;
-            cursor: pointer;
-        }
-        .reviews-summary {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-        .summary-pill {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-        .summary-pill strong { font-size: 22px; font-weight: 700; color: var(--text-main); }
-        .review-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 22px 24px;
-            margin-bottom: 14px;
-            transition: box-shadow 0.2s;
-        }
-        .review-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-        .review-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .review-left { display: flex; flex-direction: column; gap: 4px; }
-        .review-parties {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .review-parties .arrow { color: var(--text-muted); font-size: 13px; }
-        .review-agent-name { color: var(--primary); }
-        .review-date { font-size: 12px; color: var(--text-muted); }
-        .review-id-badge {
-            background: #edf2f7;
-            color: #718096;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-family: monospace;
-            font-weight: 700;
-            align-self: flex-start;
-        }
-        .star-row {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .star { font-size: 16px; }
-        .star.filled { color: var(--star-filled); }
-        .star.empty  { color: var(--star-empty); filter: grayscale(1); }
-        .rating-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
-        .review-body {
-            font-size: 14px;
-            line-height: 1.65;
-            color: #4a5568;
-            background: #f7fafc;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid var(--star-filled);
-            margin-top: 10px;
-        }
-        .reviews-empty {
-            text-align: center;
-            padding: 48px 24px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
-        .reviews-empty .empty-icon { font-size: 36px; margin-bottom: 10px; }
-        .reviews-count-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
+        /* REVIEW CARDS */
+        .review-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+        .review-card-left { flex: 1; min-width: 240px; }
+        .review-stars { color: #f6ad55; font-size: 17px; margin-bottom: 5px; letter-spacing: 2px; }
+        .review-comment { font-size: 14px; line-height: 1.65; color: #4a5568; background: #f7fafc; padding: 11px 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 8px; }
+        .review-meta { font-size: 12px; color: var(--text-muted); }
+
     </style>
 </head>
 <body>
@@ -219,7 +102,7 @@
         <li class="sidebar-item active" onclick="switchView('complaints',this)">🚨 Active Complaints</li>
         <li class="sidebar-item" onclick="switchView('agents',this)">⏳ Pending Agents</li>
         <li class="sidebar-item" onclick="switchView('users',this)">👥 System Users</li>
-        <li class="sidebar-item" onclick="switchView('reviews',this)">⭐ Reviews</li>
+        <li class="sidebar-item" onclick="switchView('reviews',this)">⭐ Client Reviews</li>
     </ul>
     <div class="sidebar-footer">
         <button class="btn-logout" onclick="logout()">Logout</button>
@@ -275,39 +158,9 @@
         </div>
     </section>
 
-    <!-- ── REVIEWS SECTION ── -->
     <section id="view-reviews" class="view-section">
-        <div class="header">
-            <div class="header-text">
-                <h1>Reviews</h1>
-                <p>All client reviews submitted for agents, most recent first.</p>
-            </div>
-        </div>
-
-        <!-- Summary pills -->
-        <div class="reviews-summary" id="reviews-summary"></div>
-
-        <!-- Search + filter toolbar -->
-        <div class="reviews-toolbar">
-            <input
-                    class="reviews-search"
-                    id="reviews-search"
-                    type="text"
-                    placeholder="Search by agent or client name…"
-                    oninput="filterReviews()"
-            >
-            <select class="filter-select" id="reviews-rating-filter" onchange="filterReviews()">
-                <option value="">All ratings</option>
-                <option value="5">⭐⭐⭐⭐⭐ 5 stars</option>
-                <option value="4">⭐⭐⭐⭐ 4 stars</option>
-                <option value="3">⭐⭐⭐ 3 stars</option>
-                <option value="2">⭐⭐ 2 stars</option>
-                <option value="1">⭐ 1 star</option>
-            </select>
-        </div>
-
-        <div class="reviews-count-label" id="reviews-count-label"></div>
-        <div id="reviews-list">Loading...</div>
+        <div class="header"><div class="header-text"><h1>⭐ Client Reviews</h1><p>View and delete reviews submitted by clients.</p></div></div>
+        <div id="reviews-container"><p style="color:var(--text-muted)">Loading...</p></div>
     </section>
 
 </main>
@@ -324,6 +177,7 @@
     </div>
 </div>
 
+<!-- ADD ADMIN MODAL -->
 <div class="modal-overlay" id="addAdminModal">
     <div class="modal">
         <h3>Add New Admin</h3>
@@ -351,11 +205,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    const API       = 'http://localhost:8080/api/admin';
-    const REVIEWS_API = 'http://localhost:8080/api/reviews';
-
-    // ── all fetched reviews, kept for client-side filtering ──
-    let _allReviews = [];
+    const API = 'http://localhost:8080/api/admin';
 
     document.addEventListener('DOMContentLoaded', loadComplaints);
 
@@ -365,9 +215,9 @@
         el.classList.add('active');
         document.getElementById('view-' + name).classList.add('active');
         if (name === 'complaints') loadComplaints();
+        if (name === 'reviews') loadReviews();
         if (name === 'agents')     loadPendingAgents();
         if (name === 'users')      loadAllUsers();
-        if (name === 'reviews')    loadReviews();
     }
 
     // ── COMPLAINTS ──
@@ -419,7 +269,7 @@
         if ((await fetch(`${API}/users/${id}/approve`, {method:'PUT'})).ok) { showToast('Agent approved!','success'); loadPendingAgents(); }
     }
 
-    // ── USERS ──
+    // ── USERS TABLE with ID column ──
     async function loadAllUsers() {
         const tbody = document.getElementById('users-tbody');
         try {
@@ -629,6 +479,64 @@
     function logout() {
         confirm2('Logout', 'Are you sure?', () => { localStorage.clear(); window.location.href='login.html'; });
     }
+
+    // ── REVIEWS ──────────────────────────────────────────────────────
+    // Backend: GET /api/reviews  |  DELETE /api/reviews/{id}
+    // Review model: { id, comment, rating (1-5), user:{id,fullName,...} }
+    // Admin can VIEW all reviews and DELETE them. No edit, no approve.
+
+    let allReviews = [];
+
+    async function loadReviews() {
+        const container = document.getElementById('reviews-container');
+        try {
+            allReviews = await fetch('http://localhost:8080/api/reviews').then(r => r.json());
+            renderReviews();
+        } catch {
+            container.innerHTML = '<p style="color:var(--danger)">❌ Failed to load reviews.</p>';
+        }
+    }
+
+    function renderReviews() {
+        const container = document.getElementById('reviews-container');
+
+        if (!allReviews.length) {
+            container.innerHTML = '<p style="color:var(--text-muted);padding:24px 0">No reviews have been submitted yet.</p>';
+            return;
+        }
+
+        const cards = allReviews.map(r => {
+            const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(5 - (r.rating || 0));
+            return `<div class="review-card">
+                <div class="review-card-left">
+                    <div class="review-stars">${stars} <span style="font-size:13px;color:var(--text-muted);font-weight:600">&nbsp;${r.rating}/5</span></div>
+                    <div class="review-comment">${r.comment || '—'}</div>
+                    <div class="review-meta">
+                        <strong>Reviewed by:</strong>
+                        ${r.user?.fullName || '—'}
+                        (ID: ${r.user?.id || '?'}, Role: ${r.user?.role || '?'})
+                        &nbsp;|&nbsp; Review ID: #${r.id}
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                    <button class="btn btn-remove" onclick="deleteReview(${r.id})">🗑 Delete</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        container.innerHTML = `<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${allReviews.length} review${allReviews.length!==1?'s':''} total</p>` + cards;
+    }
+
+    async function deleteReview(id) {
+        confirm2('Delete Review', 'This review will be permanently removed.', async () => {
+            try {
+                const res = await fetch(`http://localhost:8080/api/reviews/${id}`, {method:'DELETE'}).then(r => r.json());
+                if (res.status === 'success') { showToast('Review deleted.', 'error'); loadReviews(); }
+                else showToast('❌ ' + res.message, 'error');
+            } catch { showToast('❌ Server error.', 'error'); }
+        });
+    }
+
 </script>
 </body>
 </html>
