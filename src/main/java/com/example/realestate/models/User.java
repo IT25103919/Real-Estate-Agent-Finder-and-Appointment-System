@@ -11,7 +11,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FIX: keep field as fullName; signup.html now sends "fullName" (was sending "name")
+
     private String fullName;
 
     @Column(unique = true)
