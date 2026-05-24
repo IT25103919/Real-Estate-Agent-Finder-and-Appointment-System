@@ -11,7 +11,6 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne
     @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
@@ -28,7 +27,6 @@ public class Notification {
 
     @Column(name = "is_read")
     private boolean isRead = false;
-
 
     @Column(name = "related_entity_id")
     private Long relatedEntityId;
