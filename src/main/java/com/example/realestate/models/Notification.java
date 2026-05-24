@@ -11,7 +11,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // වෙනස් කළ කොටස: ඕනෑම යූසර් කෙනෙකුට (Client/Agent/Admin) සම්බන්ධ කළ හැක
+
     @ManyToOne
     @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
@@ -29,7 +29,7 @@ public class Notification {
     @Column(name = "is_read")
     private boolean isRead = false;
 
-    // මේක Flat ID එකක් ලෙසම තියන්න (මොකද මේක Appointment/Inquiry/Complaint ඕනෑම එකක ID එකක් විය හැක)
+
     @Column(name = "related_entity_id")
     private Long relatedEntityId;
 
