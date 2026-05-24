@@ -76,6 +76,31 @@
         .badge-avail-s{background:#c6f6d5;color:#22543d;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
         .badge-booked{background:#fed7d7;color:#742a2a;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
 
+        /* REVIEWS SECTION */
+        .review-sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+        .review-sec .sec-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+        .avg-banner{display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+        .avg-num{font-family:'DM Serif Display',serif;font-size:36px;color:var(--primary)}
+        .avg-stars-disp{color:#f6ad55;font-size:18px;letter-spacing:2px}
+        .avg-sub{font-size:12px;color:var(--muted)}
+        .review-card-pub{background:#f7fafc;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+        .stars-disp{color:#f6ad55;font-size:15px;letter-spacing:2px;margin-bottom:5px}
+        .review-text{font-size:13px;color:#4a5568;line-height:1.65;margin-bottom:6px}
+        .review-by{font-size:12px;color:var(--muted)}
+        /* SUBMIT FORM */
+        .review-form{border-top:1px solid var(--border);padding-top:18px;margin-top:6px}
+        .review-form h4{font-size:15px;font-weight:600;margin-bottom:12px;color:#2d3748}
+        .star-picker{display:flex;gap:6px;margin-bottom:12px}
+        .star-picker span{font-size:26px;cursor:pointer;color:#cbd5e0;transition:.15s;line-height:1}
+        .star-picker span.lit{color:#f6ad55}
+        .review-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:.2s}
+        .review-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .btn-submit-review{background:var(--primary);color:white;border:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer;margin-top:10px;transition:.2s}
+        .btn-submit-review:hover{background:#2c5282}
+        .review-msg{font-size:13px;font-weight:500;padding:8px 12px;border-radius:7px;margin-top:10px;display:none}
+        .msg-ok-r{background:#c6f6d5;color:#22543d}
+        .msg-err-r{background:#fed7d7;color:#742a2a}
+
         @media(max-width:650px){.stats-row{grid-template-columns:1fr 1fr}.hero-body{flex-direction:column}}
     </style>
 </head>
@@ -197,12 +222,36 @@
                     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Select an available slot and book directly.</p>
                     ${scheduleHtml}
                 </div>
+
+                <!-- REVIEWS -->
+                <div class="review-sec" id="reviews-wrapper">
+                    <div class="sec-title"><i class="fa fa-star" style="color:#f6ad55"></i> Reviews &amp; Ratings</div>
+                    <div id="reviews-avg-area"></div>
+                    <div id="reviews-list-area"><p style="font-size:13px;color:var(--muted)">Loading reviews...</p></div>
+                    <div class="review-form" id="submit-review-form">
+                        <h4>✍️ Leave a Review</h4>
+                        <div class="star-picker" id="starPicker">
+                            <span data-v="1" onclick="setRating(1)">★</span>
+                            <span data-v="2" onclick="setRating(2)">★</span>
+                            <span data-v="3" onclick="setRating(3)">★</span>
+                            <span data-v="4" onclick="setRating(4)">★</span>
+                            <span data-v="5" onclick="setRating(5)">★</span>
+                        </div>
+                        <textarea class="review-textarea" id="reviewComment" rows="3" placeholder="Share your experience with this agent..."></textarea>
+                        <br>
+                        <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
+                        <div class="review-msg" id="reviewMsg"></div>
+                    </div>
+                </div>
             `;
 
             // init sliders
             document.querySelectorAll('.slider').forEach(s => {
                 s.querySelectorAll('.dot').forEach((dot,i) => dot.addEventListener('click', () => goTo(s,i)));
             });
+
+            // Load reviews
+            await loadReviews();
 
         } catch(e) {
             document.getElementById('content').innerHTML = '<p style="color:red;text-align:center;padding:60px">Could not load agent profile.</p>';
@@ -255,6 +304,96 @@
         const s = btn.closest('.slider');
         const n = s.querySelectorAll('.slider-img').length;
         goTo(s, (parseInt(s.dataset.cur||0)-1+n)%n);
+    }
+
+    // ── REVIEWS ─────────────────────────────────────────────────────────
+    // Backend: GET /api/reviews  POST /api/reviews
+    // Review model: { id, comment, rating, user:{id,fullName,role} }
+    let selectedRating = 0;
+
+    async function loadReviews() {
+        const avgEl  = document.getElementById('reviews-avg-area');
+        const listEl = document.getElementById('reviews-list-area');
+        if (!avgEl || !listEl) return;
+        try {
+            const all     = await fetch('http://localhost:8080/api/reviews').then(r => r.json());
+            const reviews = all.filter(r => r.user?.role === 'CLIENT' || !r.user?.role);
+
+            if (!reviews.length) {
+                listEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">No reviews yet. Be the first to leave one!</p>';
+                avgEl.innerHTML  = ''; return;
+            }
+
+            const avg   = (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1);
+            const filled = Math.round(parseFloat(avg));
+            const stars  = '★'.repeat(filled) + '☆'.repeat(5 - filled);
+            avgEl.innerHTML = `<div class="avg-banner">
+                <div class="avg-num">${avg}</div>
+                <div><div class="avg-stars-disp">${stars}</div>
+                <div class="avg-sub">${reviews.length} review${reviews.length!==1?'s':''}</div></div>
+            </div>`;
+
+            listEl.innerHTML = reviews.map(r => {
+                const s = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
+                return `<div class="review-card-pub">
+                    <div class="stars-disp">${s} <span style="font-size:12px;color:var(--muted)">&nbsp;${r.rating}/5</span></div>
+                    <div class="review-text">${r.comment||'—'}</div>
+                    <div class="review-by">— ${r.user?.fullName||'Client'}</div>
+                </div>`;
+            }).join('');
+        } catch {
+            if (listEl) listEl.innerHTML = '<p style="font-size:13px;color:red">Could not load reviews.</p>';
+        }
+    }
+
+    function setRating(val) {
+        selectedRating = val;
+        document.querySelectorAll('#starPicker span').forEach(s => {
+            s.classList.toggle('lit', parseInt(s.dataset.v) <= val);
+        });
+    }
+
+    async function submitReview() {
+        const clientId = localStorage.getItem('userId');
+        const comment  = document.getElementById('reviewComment').value.trim();
+        const msgEl    = document.getElementById('reviewMsg');
+        msgEl.style.display = 'none';
+
+        if (!clientId || clientId === 'null') {
+            msgEl.textContent = '❌ You must be logged in to leave a review.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+        if (!selectedRating) {
+            msgEl.textContent = '❌ Please select a star rating.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+        if (!comment) {
+            msgEl.textContent = '❌ Please write a comment.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:8080/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment, rating: selectedRating, user: { id: parseInt(clientId) } })
+            }).then(r => r.json());
+
+            if (res.status === 'success') {
+                msgEl.textContent = '✅ Review submitted successfully!';
+                msgEl.className = 'review-msg msg-ok-r'; msgEl.style.display = 'block';
+                document.getElementById('reviewComment').value = '';
+                selectedRating = 0;
+                document.querySelectorAll('#starPicker span').forEach(s => s.classList.remove('lit'));
+                await loadReviews();
+            } else {
+                msgEl.textContent = '❌ ' + (res.message || 'Could not submit.');
+                msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block';
+            }
+        } catch {
+            msgEl.textContent = '❌ Server error. Please try again.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block';
+        }
     }
 </script>
 </body>

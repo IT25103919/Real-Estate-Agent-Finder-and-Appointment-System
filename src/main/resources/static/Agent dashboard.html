@@ -120,6 +120,18 @@
     .b-sold{background:#fed7d7;color:#742a2a}.b-avail{background:#c6f6d5;color:#22543d}
     .prop-actions{display:flex;gap:6px}
 
+    /* REVIEWS READ-ONLY */
+    .review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:12px}
+    .review-stars-row{color:#f6ad55;font-size:17px;letter-spacing:2px;margin-bottom:6px}
+    .review-comment-txt{font-size:13px;line-height:1.65;color:#4a5568;background:#f7fafc;padding:10px 14px;border-radius:7px;border-left:4px solid var(--primary);margin-bottom:7px}
+    .review-meta-txt{font-size:12px;color:var(--muted)}
+    .badge-approved-r{background:#c6f6d5;color:#22543d;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+    .badge-pending-r{background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+    .reviews-avg-box{display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:18px}
+    .avg-score-big{font-family:'DM Serif Display',serif;font-size:38px;color:var(--primary)}
+    .avg-stars-big{color:#f6ad55;font-size:20px;letter-spacing:2px}
+    .avg-count-txt{font-size:13px;color:var(--muted)}
+
     /* TOAST */
     .toast{position:fixed;bottom:20px;right:20px;color:white;padding:11px 20px;border-radius:8px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 
@@ -140,6 +152,7 @@
     <div class="nav-item" onclick="scrollTo('sec-add')"><i class="fa fa-plus-circle"></i> Add Property</div>
     <div class="nav-item" onclick="scrollTo('sec-props')"><i class="fa fa-home"></i> My Properties</div>
     <div class="nav-item" onclick="scrollTo('sec-sold')"><i class="fa fa-trophy"></i> Sold Properties</div>
+    <div class="nav-item" onclick="scrollTo('sec-reviews')"><i class="fa fa-star"></i> My Reviews</div>
 
     <div class="nav-label" style="margin-top: 15px;">Meetings & Scheduling</div>
     <a href="appointments.html" class="nav-item"><i class="fa fa-video"></i> Virtual Meetings</a>
@@ -347,6 +360,17 @@
     </div>
   </div>
 
+  <!-- ── SECTION 6: MY REVIEWS & RATINGS ── -->
+  <div id="sec-reviews">
+    <div class="sec-title">
+      My Reviews &amp; Ratings
+      <span id="reviewsCount" style="font-size:14px;font-weight:500;color:var(--muted)">Loading...</span>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">These are reviews submitted by clients. You can view but not edit or delete them.</p>
+    <div id="reviewsAvgBox"></div>
+    <div id="reviewsList"><p style="color:var(--muted);font-size:14px">Loading...</p></div>
+  </div>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -369,6 +393,7 @@
       document.getElementById('sideAvatar').textContent = name.charAt(0).toUpperCase();
       await loadProfile();
       await loadProperties();
+      await loadReviews();
   });
 
   // ── SCROLL TO SECTION ─────────────────────────────────────────────
@@ -625,6 +650,61 @@
       setTimeout(() => t.style.display='none', 3000);
   }
   function logout() { localStorage.clear(); window.location.href='login.html'; }
+
+  // ── MY REVIEWS (read-only) ─────────────────────────────────────────
+  // Backend: GET /api/reviews  =>  Review{ id, comment, rating, user:{id,fullName,role} }
+  // Agent sees all reviews where the reviewer's user.id matches or simply all reviews.
+  // Since the backend has no agent-scoped endpoint, we load all and filter by role CLIENT.
+  // Agent CANNOT edit or delete — read-only view.
+
+  async function loadReviews() {
+      const listEl  = document.getElementById('reviewsList');
+      const avgEl   = document.getElementById('reviewsAvgBox');
+      const countEl = document.getElementById('reviewsCount');
+      try {
+          // Load ALL reviews; filter to those submitted by clients (role CLIENT)
+          const all     = await fetch('http://localhost:8080/api/reviews').then(r => r.json());
+          // Show only reviews that belong to the logged-in agent's context:
+          // Since the Review model links to a single User (the reviewer),
+          // we show all reviews to the agent (they are all public client reviews).
+          const reviews = all.filter(r => r.user?.role === 'CLIENT' || !r.user?.role);
+
+          countEl.textContent = reviews.length + ' review' + (reviews.length !== 1 ? 's' : '');
+
+          // Average rating
+          if (reviews.length) {
+              const avg   = (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1);
+              const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
+              avgEl.innerHTML = `<div class="reviews-avg-box">
+                  <div class="avg-score-big">${avg}</div>
+                  <div>
+                      <div class="avg-stars-big">${stars}</div>
+                      <div class="avg-count-txt">${reviews.length} review${reviews.length !== 1 ? 's' : ''}</div>
+                  </div>
+              </div>`;
+          } else {
+              avgEl.innerHTML = '';
+          }
+
+          if (!reviews.length) {
+              listEl.innerHTML = '<p style="color:var(--muted);font-size:14px">No reviews yet.</p>';
+              return;
+          }
+
+          listEl.innerHTML = reviews.map(r => {
+              const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(5 - (r.rating || 0));
+              return `<div class="review-item">
+                  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+                      <div class="review-stars-row">${stars} <span style="font-size:12px;color:var(--muted)">&nbsp;${r.rating}/5</span></div>
+                  </div>
+                  <div class="review-comment-txt">${r.comment || '—'}</div>
+                  <div class="review-meta-txt">By <strong>${r.user?.fullName || 'Client'}</strong></div>
+              </div>`;
+          }).join('');
+      } catch {
+          if (listEl) listEl.innerHTML = '<p style="color:red;font-size:14px">Could not load reviews.</p>';
+      }
+  }
 </script>
 </body>
 </html>
