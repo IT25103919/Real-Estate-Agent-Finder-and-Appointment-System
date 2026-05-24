@@ -20,12 +20,12 @@ public class NotificationService {
     private NotificationSettingRepository settingRepository;
 
     public List<Notification> getNotificationsForUser(Long userId) {
-        // Error Fix: Repository එකේ අලුත් මෙතඩ් එක කෝල් කිරීම
+
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
     }
 
     public Notification createNotification(Long recipientId, Notification.NotificationType type, String title, String message, Long relatedId) {
-        // Default settings සාදාගැනීම
+
         NotificationSetting settings = settingRepository.findById(recipientId)
                 .orElseGet(() -> {
                     NotificationSetting defaultSetting = new NotificationSetting();
@@ -36,16 +36,16 @@ public class NotificationService {
                     return defaultSetting;
                 });
 
-        // නොටිෆිකේෂන් සෙටින්ග්ස් අනුව චෙක් කිරීම
+
         if (type == Notification.NotificationType.MEETING_REMINDER && !settings.isMeetingReminders()) return null;
         if (type == Notification.NotificationType.INQUIRY_REMINDER && !settings.isInquiryReminders()) return null;
 
         Notification n = new Notification();
 
-        // 🚀 Error Fix: Flat ID එක වෙනුවට User Object එකක් සාදා සෙට් කිරීම
+
         User recipient = new User();
         recipient.setId(recipientId);
-        n.setRecipient(recipient); // ✅ setRecipient(User) භාවිතා කර ඇත
+        n.setRecipient(recipient);
 
         n.setType(type);
         n.setTitle(title);

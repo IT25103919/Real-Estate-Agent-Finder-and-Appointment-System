@@ -16,7 +16,7 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    // 🚀 ResponseEntity ඇතුළත් කර වඩාත් සුරක්ෂිත කළා
+
     @GetMapping("/{userId}")
     public ResponseEntity<List<Notification>> getNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getNotificationsForUser(userId));
@@ -39,13 +39,13 @@ public class NotificationController {
         return ResponseEntity.ok("Deleted notification");
     }
 
-    // 🚀 ResponseEntity ඇතුළත් කළා
+
     @GetMapping("/{userId}/settings")
     public ResponseEntity<NotificationSetting> getSettings(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getSettings(userId));
     }
 
-    // 🚀 ResponseEntity ඇතුළත් කළා
+
     @PutMapping("/{userId}/settings")
     public ResponseEntity<NotificationSetting> updateSettings(@PathVariable Long userId, @RequestBody NotificationSetting settings) {
         return ResponseEntity.ok(notificationService.updateSettings(userId, settings));
