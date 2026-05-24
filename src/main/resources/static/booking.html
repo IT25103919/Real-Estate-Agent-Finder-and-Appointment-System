@@ -439,29 +439,7 @@
                 </div>
             </div>
 
-            <!-- Meeting Type Dropdown -->
-            <div class="input-group">
-                <label for="meetingType">Platform Type</label>
-                <div class="select-wrapper input-wrapper">
-                    <select id="meetingType">
-                        <option>Google Meet</option>
-                        <option>Zoom</option>
-                        <option>Microsoft Teams</option>
-                    </select>
-                    <i class="fa fa-video"></i>
-                </div>
-                <span class="field-error" id="error-meetingType" style="display: none;"></span>
-            </div>
-
-            <!-- Meeting Link -->
-            <div class="input-group">
-                <label for="meetingLink">Platform URL / Meeting Link</label>
-                <div class="input-wrapper">
-                    <input type="text" id="meetingLink" placeholder="https://meet.google.com/xyz-abc">
-                    <i class="fa fa-link"></i>
-                </div>
-                <span class="field-error" id="error-meetingLink" style="display: none;"></span>
-            </div>
+            <!-- (Meeting type and link removed - virtual meetings handled internally) -->
 
             <!-- Notes -->
             <div class="input-group">
@@ -622,7 +600,7 @@
         }
 
         function clearAllErrors() {
-            ["clientId","agentId","date","time","meetingType","meetingLink","notes"].forEach(clearFieldError);
+            ["clientId","agentId","date","time","notes"].forEach(clearFieldError);
         }
 
         // ── Live per-field validation on blur ──────────────────────────────────
@@ -649,13 +627,7 @@
             clearFieldError("time");
         });
 
-        document.getElementById("meetingLink").addEventListener("blur", function() {
-            const val = this.value.trim();
-            if (!val) { showFieldError("meetingLink", "Please provide a meeting link."); return; }
-            const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
-            if (!urlPattern.test(val)) { showFieldError("meetingLink", "Enter a valid URL (must start with http:// or https://)."); return; }
-            clearFieldError("meetingLink");
-        });
+        // Meeting links are no longer collected from users; handled by the system.
 
         document.getElementById("notes").addEventListener("blur", function() {
             const val = this.value.trim();
@@ -725,17 +697,7 @@
                 }
             }
 
-            // Meeting Link
-            if (!appointment.meetingLink || appointment.meetingLink.trim() === "") {
-                showFieldError("meetingLink", "Please provide a meeting link.");
-                valid = false;
-            } else {
-                const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
-                if (!urlPattern.test(appointment.meetingLink.trim())) {
-                    showFieldError("meetingLink", "Enter a valid URL (must start with http:// or https://).");
-                    valid = false;
-                }
-            }
+            // Meeting links are provided by the system; no user input required.
 
             // Notes length
             if (appointment.notes && appointment.notes.trim().length > 500) {
@@ -756,8 +718,7 @@
                     agentId:     document.getElementById("agentId").value.trim(),
                     date:        document.getElementById("date").value,
                     time:        document.getElementById("time").value,
-                    meetingType: document.getElementById("meetingType").value,
-                    meetingLink: document.getElementById("meetingLink").value.trim(),
+                    // meetingType and meetingLink removed
                     notes:       document.getElementById("notes").value.trim()
                 };
 

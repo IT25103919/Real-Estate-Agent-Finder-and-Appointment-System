@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Agent Availability</title>
+  <title>Availability Removed</title>
 
   <style>
 
@@ -69,95 +69,14 @@
   async function loadAvailability(){
 
     const agentId =
-            document.getElementById("agentId").value;
+            <div class="container">
 
-    const response = await fetch(
-            `http://localhost:8080/availability/agent/${agentId}`
-    );
+              <h2>Availability Removed</h2>
 
-    const data = await response.json();
+              <p>The agent availability feature has been removed from this site.</p>
+              <p>Please use the <a href="appointments.html">Appointments</a> page to manage schedules.</p>
 
-    let html = "";
+            </div>
 
-    data.forEach(slot => {
-
-      html += `
-        <div class="slot">
-
-            <h3>${slot.date}</h3>
-
-            <p>${slot.time}</p>
-
-            <button onclick="
-                bookAppointment(
-                    '${slot.agentId}',
-                    '${slot.date}',
-                    '${slot.time}',
-                    ${slot.id}
-                )
-            ">
-                Book Appointment
-            </button>
-
-        </div>
-      `;
-    });
-
-    document.getElementById("results").innerHTML = html;
-  }
-
-  async function bookAppointment(
-          agentId,
-          date,
-          time,
-          availabilityId
-  ){
-
-    const appointment = {
-
-      clientId: "C001",
-
-      agentId: agentId,
-
-      date: date,
-
-      time: time,
-
-      meetingType: "Google Meet",
-
-      meetingLink: "https://meet.google.com/test",
-
-      status: "Pending",
-
-      notes: "Booked from availability"
-    };
-
-    await fetch(
-            "http://localhost:8080/appointments",
-            {
-              method:"POST",
-
-              headers:{
-                "Content-Type":"application/json"
-              },
-
-              body:JSON.stringify(appointment)
-            }
-    );
-
-    await fetch(
-            `http://localhost:8080/availability/${availabilityId}`,
-            {
-              method:"DELETE"
-            }
-    );
-
-    alert("Appointment Booked");
-
-    loadAvailability();
-  }
-
-</script>
-
-</body>
-</html>
+            </body>
+            </html>

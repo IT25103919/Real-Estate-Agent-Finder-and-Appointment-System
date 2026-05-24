@@ -13,6 +13,7 @@
           --text-muted: #718096; --border-color: #e2e8f0;
           --danger: #e53e3e; --danger-light: #fed7d7; --success: #38a169;
           --sidebar-w: 260px;
+          --star-filled: #f6ad55; --star-empty: #e2e8f0;
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
         .sidebar { width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
@@ -304,6 +305,130 @@
         confirm2(`Delete "${name}"`, 'This cannot be undone.', async () => {
             if ((await fetch(`${API}/users/${id}`, {method:'DELETE'})).ok) { showToast('User deleted.','error'); loadAllUsers(); }
         });
+    }
+
+    // ── REVIEWS ──
+    async function loadReviews() {
+        const list = document.getElementById('reviews-list');
+        const summaryEl = document.getElementById('reviews-summary');
+        list.innerHTML = 'Loading...';
+        summaryEl.innerHTML = '';
+        // reset filters
+        document.getElementById('reviews-search').value = '';
+        document.getElementById('reviews-rating-filter').value = '';
+
+        try {
+            // Expects: GET /api/admin/reviews
+            // Returns array of:
+            // { id, rating (1–5), comment, createdAt,
+            //   agent: { id, fullName }, client: { id, fullName } }
+            const reviews = await fetch(`${REVIEWS_API}`).then(r => r.json());
+
+            // Sort newest first
+            reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            _allReviews = reviews;
+
+            // Summary pills
+            if (reviews.length) {
+                const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+                const dist = [5,4,3,2,1].map(n => reviews.filter(r => r.rating === n).length);
+                summaryEl.innerHTML = `
+                    <div class="summary-pill"><strong>${reviews.length}</strong> Total Reviews</div>
+                    <div class="summary-pill"><strong>${avg}</strong> Avg Rating ⭐</div>
+                    <div class="summary-pill"><strong>${dist[0]}</strong> Five-star</div>
+                    <div class="summary-pill"><strong>${dist[4]}</strong> One-star</div>
+                `;
+            }
+
+            renderReviews(reviews);
+        } catch {
+            list.innerHTML = `<p style="color:var(--danger)">❌ Failed to load reviews.</p>`;
+        }
+    }
+
+    function filterReviews() {
+        const q      = document.getElementById('reviews-search').value.toLowerCase().trim();
+        const rating = document.getElementById('reviews-rating-filter').value;
+
+        let filtered = _allReviews;
+        if (q) {
+            filtered = filtered.filter(r =>
+                (r.agent?.fullName || '').toLowerCase().includes(q) ||
+                (r.client?.fullName || '').toLowerCase().includes(q)
+            );
+        }
+        if (rating) {
+            filtered = filtered.filter(r => String(r.rating) === rating);
+        }
+        renderReviews(filtered);
+    }
+
+    function renderReviews(reviews) {
+        const list  = document.getElementById('reviews-list');
+        const label = document.getElementById('reviews-count-label');
+
+        label.textContent = reviews.length
+            ? `Showing ${reviews.length} review${reviews.length !== 1 ? 's' : ''}`
+            : '';
+
+        if (!reviews.length) {
+            list.innerHTML = `
+                <div class="reviews-empty">
+                    <div class="empty-icon">⭐</div>
+                    No reviews match your filters.
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = reviews.map(r => `
+            <div class="review-card">
+                <div class="review-top">
+                    <div class="review-left">
+                        <div class="review-parties">
+                            <span>${r.client?.fullName || 'Unknown Client'}</span>
+                            <span class="arrow">→</span>
+                            <span class="review-agent-name">${r.agent?.fullName || 'Unknown Agent'}</span>
+                        </div>
+                        <div class="review-date">${fmtDate(r.createdAt)}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                        <span class="review-id-badge">#${r.id}</span>
+                        <div class="star-row">
+                            ${starsHtml(r.rating)}
+                            <span class="rating-label">${r.rating}/5</span>
+                        </div>
+                    </div>
+                </div>
+                ${r.comment
+                    ? `<div class="review-body">${escHtml(r.comment)}</div>`
+                    : `<div class="review-body" style="color:var(--text-muted);font-style:italic;border-left-color:var(--border-color)">No comment left.</div>`
+                }
+                <div style="display:flex;justify-content:flex-end;margin-top:12px">
+                    <button class="btn btn-remove" onclick="askDeleteReview(${r.id})">🗑 Delete Review</button>
+                </div>
+            </div>`).join('');
+    }
+
+    function askDeleteReview(id) {
+        confirm2('Delete Review', 'Remove this review permanently?', async () => {
+            const res = await fetch(`${REVIEWS_API}/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Review deleted.', 'error');
+                loadReviews();
+            } else {
+                showToast('Failed to delete review.', 'error');
+            }
+        });
+    }
+
+    function starsHtml(rating) {
+        return [1,2,3,4,5].map(i =>
+            `<span class="star ${i <= rating ? 'filled' : 'empty'}">★</span>`
+        ).join('');
+    }
+
+    function escHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     // ── ADD ADMIN ──
