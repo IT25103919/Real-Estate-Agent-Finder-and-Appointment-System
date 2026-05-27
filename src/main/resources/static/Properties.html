@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Property Listings - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+          --primary:#2b6cb0;--primary-light:#ebf8ff;--gold:#c9a84c;--gold-light:#f2d27b;
+          --bg:#f0f4f8;--card:#ffffff;--text:#2d3748;--muted:#718096;--border:#e2e8f0;--sidebar:260px;
+          --danger:#e53e3e;--success:#38a169;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+        /* SIDEBAR */
+        .sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100}
+        .sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+        .logo-box{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;justify-content:center;align-items:center}
+        .logo-box span{font-size:18px;font-weight:700;color:#0f1f3d;font-family:'DM Serif Display',serif}
+        .logo-text h2{color:var(--primary);font-size:20px;font-family:'DM Serif Display',serif}
+        .logo-text p{color:var(--gold);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold}
+        .sidebar-nav{padding:20px 0;flex:1;overflow-y:auto}
+        .nav-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#a0aec0;padding:0 24px 8px;font-weight:600}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:12px 24px;color:var(--text);text-decoration:none;font-weight:500;border-left:4px solid transparent;transition:all .18s;cursor:pointer}
+        .nav-item:hover,.nav-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary);font-weight:600}
+        .sidebar-footer{padding:20px;border-top:1px solid var(--border);background:#fcfcfc}
+        .user-info{display:flex;align-items:center;gap:12px}
+        .user-avatar{width:40px;height:40px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--primary);overflow:hidden;flex-shrink:0}
+        .logout-btn{margin-top:12px;width:100%;padding:8px;background:white;border:1px solid var(--border);color:var(--danger);border-radius:8px;cursor:pointer;font-weight:600}
+        .logout-btn:hover{background:#fed7d7}
+
+        /* MAIN */
+        .main{margin-left:var(--sidebar);flex:1;padding:32px}
+
+        /* PAGE HEADER */
+        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:16px}
+        .page-header h1{font-family:'DM Serif Display',serif;font-size:28px;color:#0f1f3d}
+        .page-header p{color:var(--muted);font-size:14px;margin-top:4px}
+        .header-actions{display:flex;gap:10px;align-items:center}
+        .result-count{font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:20px}
+
+        /* FILTER BAR */
+        .filter-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end}
+        .filter-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px}
+        .filter-group label{font-size:12px;font-weight:600;color:#4a5568;text-transform:uppercase;letter-spacing:.05em}
+        .filter-input,.filter-select{padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:.2s;background:white;color:var(--text)}
+        .filter-input:focus,.filter-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .price-range{display:flex;gap:8px;align-items:center}
+        .price-range input{flex:1}
+        .price-range span{color:var(--muted);font-size:13px;white-space:nowrap}
+        .filter-actions{display:flex;gap:8px;align-items:flex-end}
+        .btn-search{padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;white-space:nowrap}
+        .btn-search:hover{background:#2c5282}
+        .btn-clear{padding:10px 14px;background:white;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
+        .btn-clear:hover{background:#f7fafc;color:var(--text)}
+
+        /* PROPERTY GRID */
+        .properties-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+
+        /* PROPERTY CARD */
+        .prop-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .22s;position:relative}
+        .prop-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(43,108,176,.13);border-color:#bee3f8}
+
+        /* IMAGE AREA */
+        .prop-images{position:relative;height:210px;background:#e2e8f0;overflow:hidden}
+        .prop-images .slide{display:none;width:100%;height:100%;object-fit:cover}
+        .prop-images .slide.active{display:block}
+        .prop-images .slide-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e2e8f0,#edf2f7);color:#a0aec0;font-size:48px}
+        .img-nav{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+        .img-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);cursor:pointer;transition:.2s;border:1px solid rgba(0,0,0,.1)}
+        .img-dot.active{background:white;transform:scale(1.2)}
+        .img-prev,.img-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);color:white;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:13px;display:none;align-items:center;justify-content:center;z-index:5;transition:.2s}
+        .prop-images:hover .img-prev,.prop-images:hover .img-next{display:flex}
+        .img-prev{left:10px}
+        .img-next{right:10px}
+        .img-prev:hover,.img-next:hover{background:rgba(0,0,0,.65)}
+
+        /* STATUS & WISHLIST OVERLAY */
+        .status-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;z-index:10}
+        .status-AVAILABLE{background:#c6f6d5;color:#276749}
+        .status-SOLD{background:#fed7d7;color:#c53030}
+        .wishlist-btn{
+          position:absolute;top:10px;right:10px;
+          width:38px;height:38px;border-radius:50%;
+          background:white;border:none;cursor:pointer;
+          display:flex !important;align-items:center;justify-content:center;
+          font-size:18px;z-index:20;
+          transition:all .2s;
+          box-shadow:0 2px 10px rgba(0,0,0,.22);
+          color:#cbd5e0;
+        }
+        .wishlist-btn:hover{transform:scale(1.18);box-shadow:0 4px 16px rgba(0,0,0,.25)}
+        .wishlist-btn:not(.active):hover{color:#e53e3e}
+        .wishlist-btn.active{color:#e53e3e !important;background:#fff5f5}
+        .wishlist-btn .heart-icon{font-style:normal;line-height:1;font-size:17px}
+        .type-badge{position:absolute;bottom:12px;left:12px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;z-index:10}
+        .type-RESIDENTIAL{background:rgba(43,108,176,.85);color:white}
+        .type-COMMERCIAL{background:rgba(201,168,76,.9);color:#0f1f3d}
+
+        /* CARD BODY */
+        .prop-body{padding:18px}
+        .prop-price{font-size:20px;font-weight:700;color:var(--primary);margin-bottom:5px}
+        .prop-price span{font-size:12px;font-weight:500;color:var(--muted)}
+        .prop-title{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:6px;line-height:1.3;color:#0f1f3d}
+        .prop-location{font-size:13px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:5px}
+        .prop-location i{color:var(--primary);font-size:12px}
+        .prop-specs{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+        .spec-item{font-size:12px;color:#4a5568;display:flex;align-items:center;gap:5px;background:#f7fafc;padding:4px 9px;border-radius:6px}
+        .spec-item i{color:var(--primary);font-size:11px}
+        .prop-agent{display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-bottom:14px}
+        .agent-avatar-sm{width:28px;height:28px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--primary);overflow:hidden;flex-shrink:0}
+        .agent-avatar-sm img{width:100%;height:100%;object-fit:cover}
+        .prop-agent-info{font-size:12px}
+        .prop-agent-info .agent-name{font-weight:600;color:var(--text)}
+        .prop-agent-info .agent-label{color:var(--muted)}
+        .prop-actions{display:flex;gap:8px}
+        .btn-view-details{flex:1;padding:9px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+        .btn-view-details:hover{background:#2c5282}
+        .btn-wishlist-add{
+          padding:9px 13px;
+          background:var(--card);
+          border:1.5px solid var(--border);
+          border-radius:8px;
+          cursor:pointer;
+          color:#cbd5e0;
+          font-size:17px;
+          transition:all .2s;
+          display:flex;align-items:center;justify-content:center;
+          min-width:42px;
+        }
+        .btn-wishlist-add:hover{border-color:#e53e3e;color:#e53e3e;background:#fff5f5;transform:scale(1.08)}
+        .btn-wishlist-add.active{border-color:#e53e3e;color:#e53e3e !important;background:#fff5f5}
+
+        /* EMPTY / LOADING STATE */
+        .state-msg{text-align:center;padding:60px 40px;color:var(--muted);font-size:14px;background:var(--card);border-radius:16px;border:1px solid var(--border);grid-column:1/-1}
+        .state-msg i{font-size:48px;display:block;margin-bottom:16px;color:#cbd5e0}
+        .state-msg h3{font-size:18px;color:var(--text);margin-bottom:8px;font-family:'DM Serif Display',serif}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:28px;right:28px;padding:13px 22px;border-radius:10px;color:white;font-size:14px;font-weight:500;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:slideIn .3s ease}
+        .toast.success{background:#276749}
+        .toast.error{background:#c53030}
+        .toast.info{background:var(--primary)}
+        @keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+        @media(max-width:900px){.properties-grid{grid-template-columns:1fr}.filter-section{flex-direction:column}}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box"><span>E</span></div>
+        <div class="logo-text"><h2>EstateHub</h2><p>Premium Real Estate</p></div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Navigation</div>
+        <a href="client-dashboard.html" class="nav-item"><i class="fa fa-chart-pie"></i> Dashboard</a>
+        <a href="properties.html" class="nav-item active"><i class="fa fa-home"></i> Browse Properties</a>
+        <a href="wishlist.html" class="nav-item"><i class="fa fa-heart"></i> My Wishlist</a>
+        <a href="inquiries.html" class="nav-item"><i class="fa fa-envelope"></i> My Inquiries</a>
+        <a href="notifications.html" class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
+        <a href="complaints.html" class="nav-item"><i class="fa fa-gavel"></i> File a Complaint</a>
+        <a href="client-profile.html" class="nav-item"><i class="fa fa-user"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">C</div>
+            <div>
+                <div style="font-weight:600;font-size:14px" id="userName">Client</div>
+                <div style="font-size:12px;color:var(--muted)">Client Account</div>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1>Property Listings</h1>
+            <p>Discover properties listed by our verified agents across Sri Lanka</p>
+        </div>
+        <div class="header-actions">
+            <span class="result-count" id="resultCount">Loading...</span>
+            <a href="wishlist.html" style="padding:9px 16px;background:white;border:1.5px solid var(--border);color:var(--text);border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px">
+                <i class="fa fa-heart" style="color:#e53e3e"></i> My Wishlist
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label>Property Type</label>
+            <select class="filter-select" id="filterType">
+                <option value="">All Types</option>
+                <option value="RESIDENTIAL">Residential</option>
+                <option value="COMMERCIAL">Commercial</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Location (District)</label>
+            <input type="text" class="filter-input" id="filterDistrict" placeholder="e.g. Colombo, Galle…"/>
+        </div>
+        <div class="filter-group" style="min-width:240px">
+            <label>Price Range (LKR)</label>
+            <div class="price-range">
+                <input type="number" class="filter-input" id="filterMinPrice" placeholder="Min"/>
+                <span>—</span>
+                <input type="number" class="filter-input" id="filterMaxPrice" placeholder="Max"/>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="btn-search" onclick="applyFilters()"><i class="fa fa-search"></i> Search</button>
+            <button class="btn-clear" onclick="clearFilters()"><i class="fa fa-times"></i> Clear</button>
+        </div>
+    </div>
+
+    <!-- PROPERTY GRID -->
+    <div class="properties-grid" id="propertiesGrid">
+        <div class="state-msg">
+            <i class="fa fa-spinner fa-spin"></i>
+            <h3>Loading Properties</h3>
+            <p>Fetching the latest listings for you…</p>
+        </div>
+    </div>
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'http://localhost:8080/api';
+    let currentClientId = null;
+    let wishlistSet = new Set();
+
+    // Use the same localStorage keys as the rest of the project
+    const userRole = localStorage.getItem('userRole');
+    const userId   = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName') || 'Client';
+
+    if (!userId || !userRole) { window.location.href = 'login.html'; }
+    if (userRole !== 'CLIENT') { window.location.href = 'login.html'; }
+
+    currentClientId = parseInt(userId);
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'flex';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    // Load wishlist IDs for current client
+    async function loadWishlistIds() {
+      if (!currentClientId) return;
+      try {
+        const res = await fetch(`${API}/wishlist/${currentClientId}`);
+        const props = await res.json();
+        wishlistSet = new Set(props.map(p => p.property.id));
+      } catch (e) { console.error('Wishlist load error:', e); }
+    }
+
+    // Toggle wishlist
+    async function toggleWishlist(propertyId, btn) {
+      if (!currentClientId) { showToast('Please log in.', 'error'); return; }
+      const isWished = wishlistSet.has(propertyId);
+      try {
+        if (isWished) {
+          const res = await fetch(`${API}/wishlist/${currentClientId}/remove/${propertyId}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.status === 'success') {
+            wishlistSet.delete(propertyId);
+            updateWishlistBtns(propertyId, false);
+            showToast('Removed from wishlist', 'info');
+          } else {
+            showToast(data.message || 'Failed to remove.', 'error');
+          }
+        } else {
+          const res = await fetch(`${API}/wishlist/${currentClientId}/add/${propertyId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.status === 'success') {
+            wishlistSet.add(propertyId);
+            updateWishlistBtns(propertyId, true);
+            showToast('❤️ Added to wishlist!');
+          } else if (data.status === 'exists') {
+            wishlistSet.add(propertyId);
+            updateWishlistBtns(propertyId, true);
+            showToast('Already in wishlist', 'info');
+          } else {
+            // Show the actual error from backend for debugging
+            showToast(data.message || 'Failed to add to wishlist.', 'error');
+            console.error('Wishlist error:', data);
+          }
+        }
+      } catch (e) {
+        console.error('Wishlist fetch error:', e);
+        showToast('Cannot connect to server.', 'error');
+      }
+    }
+
+    function heartIcon(active) {
+      // Use solid heart always (FA Free) — red when active, grey when not
+      return `<i class="fas fa-heart" style="color:${active ? '#e53e3e' : '#cbd5e0'}"></i>`;
+    }
+
+    function updateWishlistBtns(propertyId, active) {
+      document.querySelectorAll(`.wishlist-btn[data-id="${propertyId}"]`).forEach(btn => {
+        btn.classList.toggle('active', active);
+        btn.innerHTML = heartIcon(active);
+        btn.title = active ? 'Remove from Wishlist' : 'Add to Wishlist';
+      });
+      document.querySelectorAll(`.btn-wishlist-add[data-id="${propertyId}"]`).forEach(btn => {
+        btn.classList.toggle('active', active);
+        btn.innerHTML = heartIcon(active);
+        btn.title = active ? 'Remove from Wishlist' : 'Add to Wishlist';
+      });
+    }
+
+    // Slider logic
+    function initSlider(card, photos) {
+      let current = 0;
+      const slides = card.querySelectorAll('.slide');
+      const dots = card.querySelectorAll('.img-dot');
+      function go(n) {
+        slides[current].classList.remove('active');
+        dots[current] && dots[current].classList.remove('active');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current] && dots[current].classList.add('active');
+      }
+      card.querySelector('.img-prev').addEventListener('click', e => { e.stopPropagation(); go(current - 1); });
+      card.querySelector('.img-next').addEventListener('click', e => { e.stopPropagation(); go(current + 1); });
+      dots.forEach((d, i) => d.addEventListener('click', e => { e.stopPropagation(); go(i); }));
+    }
+
+    function formatPrice(price) {
+      if (!price) return 'N/A';
+      if (price >= 1000000) return `LKR ${(price / 1000000).toFixed(1)}M`;
+      if (price >= 1000) return `LKR ${(price / 1000).toFixed(0)}K`;
+      return `LKR ${price.toLocaleString()}`;
+    }
+
+    function buildCard(p) {
+      const photos = [p.photo1, p.photo2, p.photo3, p.photo4].filter(Boolean);
+      const isWished = wishlistSet.has(p.id);
+      const type = p.propertyType || 'RESIDENTIAL';
+      const status = p.status || 'AVAILABLE';
+
+      let slidesHTML = '';
+      let dotsHTML = '';
+      if (photos.length > 0) {
+        photos.forEach((ph, i) => {
+          slidesHTML += `<img class="slide${i === 0 ? ' active' : ''}" src="${ph}" alt="Property photo" loading="lazy"/>`;
+          if (photos.length > 1) dotsHTML += `<div class="img-dot${i === 0 ? ' active' : ''}"></div>`;
+        });
+      } else {
+        slidesHTML = `<div class="slide active slide-placeholder"><i class="fa fa-home"></i></div>`;
+      }
+
+      const navHTML = photos.length > 1
+        ? `<button class="img-prev"><i class="fa fa-chevron-left"></i></button><button class="img-next"><i class="fa fa-chevron-right"></i></button>`
+        : '';
+
+      let specsHTML = '';
+      if (type === 'RESIDENTIAL') {
+        if (p.bedrooms) specsHTML += `<div class="spec-item"><i class="fa fa-bed"></i>${p.bedrooms} Beds</div>`;
+        if (p.bathrooms) specsHTML += `<div class="spec-item"><i class="fa fa-bath"></i>${p.bathrooms} Baths</div>`;
+      } else {
+        if (p.squareFeet) specsHTML += `<div class="spec-item"><i class="fa fa-expand"></i>${p.squareFeet.toLocaleString()} sq ft</div>`;
+      }
+      if (p.addedDate) specsHTML += `<div class="spec-item"><i class="fa fa-calendar"></i>${p.addedDate}</div>`;
+
+      const agentName = p.agent ? (p.agent.fullName || p.agent.name || 'Agent') : 'Agent';
+      const agentInitial = agentName.charAt(0).toUpperCase();
+      const agentPhotoHTML = p.agent && p.agent.photo
+        ? `<img src="${p.agent.photo}" alt="${agentName}"/>`
+        : agentInitial;
+
+      return `
+        <div class="prop-card" id="card-${p.id}">
+          <div class="prop-images">
+            ${slidesHTML}
+            ${navHTML}
+            <div class="img-nav">${dotsHTML}</div>
+            <div class="status-badge status-${status}">${status}</div>
+            <button class="wishlist-btn ${isWished ? 'active' : ''}" data-id="${p.id}"
+              title="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}"
+              onclick="toggleWishlist(${p.id}, this)">
+              <i class="fas fa-heart" style="color:${isWished ? '#e53e3e' : '#cbd5e0'}"></i>
+            </button>
+            <div class="type-badge type-${type}">${type}</div>
+          </div>
+          <div class="prop-body">
+            <div class="prop-price">${formatPrice(p.price)} <span>/ Total</span></div>
+            <div class="prop-title">${p.title || 'Untitled Property'}</div>
+            <div class="prop-location"><i class="fa fa-map-marker-alt"></i>${p.district || 'Location not specified'}</div>
+            <div class="prop-specs">${specsHTML}</div>
+            <div class="prop-agent">
+              <div class="agent-avatar-sm">${agentPhotoHTML}</div>
+              <div class="prop-agent-info">
+                <div class="agent-name">${agentName}</div>
+                <div class="agent-label">Listed by Agent</div>
+              </div>
+            </div>
+            <div class="prop-actions">
+              <a href="property-details.html?id=${p.id}" class="btn-view-details">
+                <i class="fa fa-eye"></i> View Details
+              </a>
+              <button class="btn-wishlist-add ${isWished ? 'active' : ''}" data-id="${p.id}"
+                title="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}"
+                onclick="toggleWishlist(${p.id}, this)">
+                <i class="fas fa-heart" style="color:${isWished ? '#e53e3e' : '#cbd5e0'}"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderProperties(properties) {
+      const grid = document.getElementById('propertiesGrid');
+      document.getElementById('resultCount').textContent = `${properties.length} propert${properties.length !== 1 ? 'ies' : 'y'} found`;
+      if (properties.length === 0) {
+        grid.innerHTML = `<div class="state-msg"><i class="fa fa-search"></i><h3>No Properties Found</h3><p>Try adjusting your filters or check back later.</p></div>`;
+        return;
+      }
+      grid.innerHTML = properties.map(buildCard).join('');
+      // Init sliders
+      grid.querySelectorAll('.prop-card').forEach(card => {
+        const photos = card.querySelectorAll('.slide:not(.slide-placeholder)');
+        if (photos.length > 1) initSlider(card, photos);
+      });
+    }
+
+    async function loadProperties(params = {}) {
+      const grid = document.getElementById('propertiesGrid');
+      grid.innerHTML = `<div class="state-msg"><i class="fa fa-spinner fa-spin"></i><h3>Loading Properties</h3><p>Fetching the latest listings…</p></div>`;
+      try {
+        const qs = new URLSearchParams();
+        if (params.type) qs.set('type', params.type);
+        if (params.district) qs.set('district', params.district);
+        if (params.minPrice) qs.set('minPrice', params.minPrice);
+        if (params.maxPrice) qs.set('maxPrice', params.maxPrice);
+        const url = `${API}/properties${qs.toString() ? '?' + qs.toString() : ''}`;
+        const res = await fetch(url);
+        const properties = await res.json();
+        renderProperties(properties);
+      } catch (e) {
+        grid.innerHTML = `<div class="state-msg"><i class="fa fa-exclamation-circle"></i><h3>Failed to Load</h3><p>Could not reach the server. Please try again.</p></div>`;
+      }
+    }
+
+    function applyFilters() {
+      loadProperties({
+        type: document.getElementById('filterType').value,
+        district: document.getElementById('filterDistrict').value.trim(),
+        minPrice: document.getElementById('filterMinPrice').value,
+        maxPrice: document.getElementById('filterMaxPrice').value
+      });
+    }
+
+    function clearFilters() {
+      document.getElementById('filterType').value = '';
+      document.getElementById('filterDistrict').value = '';
+      document.getElementById('filterMinPrice').value = '';
+      document.getElementById('filterMaxPrice').value = '';
+      loadProperties();
+    }
+
+    // Enter key on filter inputs
+    document.addEventListener('DOMContentLoaded', () => {
+      ['filterDistrict','filterMinPrice','filterMaxPrice'].forEach(id => {
+        document.getElementById(id).addEventListener('keypress', e => { if (e.key === 'Enter') applyFilters(); });
+      });
+    });
+
+    // Init
+    (async () => {
+      await loadWishlistIds();
+      await loadProperties();
+    })();
+</script>
+</body>
+</html>

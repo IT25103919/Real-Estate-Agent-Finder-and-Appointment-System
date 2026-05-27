@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Agent Portfolio - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--primary:#2b6cb0;--primary-light:#ebf8ff;--gold:#c9a84c;--gold-light:#f2d27b;--bg:#f0f4f8;--card:#fff;--text:#2d3748;--muted:#718096;--border:#e2e8f0;--sidebar:260px;--success:#38a169}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+        .sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100}
+        .sidebar-logo{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+        .logo-box{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#0f1f3d}
+        .logo-text h2{font-family:'DM Serif Display',serif;font-size:18px;color:var(--primary)}
+        .logo-text p{font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+        .sidebar-nav{padding:16px 0;flex:1}
+        .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a0aec0;padding:0 20px 6px;font-weight:600}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--text);text-decoration:none;font-weight:500;border-left:3px solid transparent;font-size:14px;transition:.15s}
+        .nav-item:hover,.nav-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary)}
+
+        .main{margin-left:var(--sidebar);flex:1;padding:32px;max-width:1000px}
+        .back-link{display:inline-flex;align-items:center;gap:7px;color:var(--primary);text-decoration:none;font-size:13px;font-weight:500;margin-bottom:22px}
+        .back-link:hover{text-decoration:underline}
+
+        /* HERO */
+        .hero{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:22px}
+        .hero-banner{height:130px;background:linear-gradient(135deg,#0f1f3d,#2b6cb0)}
+        .hero-photo{position:relative;margin-top:-52px;margin-left:32px;width:104px;height:104px;border-radius:50%;border:4px solid white;background:#edf2f7;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:38px;color:#a0aec0}
+        .hero-photo img{width:100%;height:100%;object-fit:cover}
+        .hero-body{padding:16px 32px 28px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+        .hero-info h1{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
+        .meta-row{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+        .meta-row i{color:var(--primary);margin-right:4px}
+        .btn-book{background:var(--gold);color:#0f1f3d;border:none;padding:13px 26px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+        .btn-book:hover{background:var(--gold-light)}
+
+        /* STATS */
+        .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+        .stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+        .stat-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--primary)}
+        .stat-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+        /* SECTION CARD */
+        .sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+        .sec-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+        .sec-title i{color:var(--primary);font-size:16px}
+
+        /* PROPERTIES GRID */
+        .prop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+        .prop-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+        .slider{position:relative;height:150px;overflow:hidden;background:#edf2f7}
+        .slider-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+        .slider-img.active{opacity:1}
+        .slider-dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+        .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer}
+        .dot.active{background:white}
+        .slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.3);color:white;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:11px}
+        .slider-btn.prev{left:5px}.slider-btn.next{right:5px}
+        .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#a0aec0}
+        .prop-body{padding:12px}
+        .prop-title{font-weight:700;font-size:14px;margin-bottom:3px}
+        .prop-price{color:var(--primary);font-weight:700;margin-bottom:6px;font-size:14px}
+        .prop-meta{font-size:12px;color:var(--muted);line-height:1.6}
+        .badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin-top:5px}
+        .badge-res{background:#ebf8ff;color:#2b6cb0}.badge-com{background:#fef3c7;color:#92400e}
+        .badge-sold{background:#fed7d7;color:#742a2a}.badge-avail{background:#c6f6d5;color:#22543d}
+
+        /* WISHLIST BUTTON */
+        .wishlist-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            color: #cbd5e0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .wishlist-btn:hover { transform: scale(1.1); color: #e53e3e; }
+        .wishlist-btn.active { color: #e53e3e; background: #fff5f5; border: 1px solid #fed7d7; }
+
+        /* SCHEDULE */
+        .schedule-table{width:100%;border-collapse:collapse}
+        .schedule-table th{background:var(--primary-light);color:var(--primary);padding:10px 14px;text-align:left;font-size:13px}
+        .schedule-table td{padding:11px 14px;border-top:1px solid var(--border);font-size:13px}
+        .schedule-table tr:hover td{background:#f7fafc}
+        .badge-avail-s{background:#c6f6d5;color:#22543d;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+        .badge-booked{background:#fed7d7;color:#742a2a;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+
+        /* REVIEWS SECTION */
+        .review-sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+        .review-sec .sec-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+        .avg-banner{display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+        .avg-num{font-family:'DM Serif Display',serif;font-size:36px;color:var(--primary)}
+        .avg-stars-disp{color:#f6ad55;font-size:18px;letter-spacing:2px}
+        .avg-sub{font-size:12px;color:var(--muted)}
+        .review-card-pub{background:#f7fafc;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+        .stars-disp{color:#f6ad55;font-size:15px;letter-spacing:2px;margin-bottom:5px}
+        .review-text{font-size:13px;color:#4a5568;line-height:1.65;margin-bottom:6px}
+        .review-by{font-size:12px;color:var(--muted)}
+        /* SUBMIT FORM */
+        .review-form{border-top:1px solid var(--border);padding-top:18px;margin-top:6px}
+        .review-form h4{font-size:15px;font-weight:600;margin-bottom:12px;color:#2d3748}
+        .star-picker{display:flex;gap:6px;margin-bottom:12px}
+        .star-picker span{font-size:26px;cursor:pointer;color:#cbd5e0;transition:.15s;line-height:1}
+        .star-picker span.lit{color:#f6ad55}
+        .review-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:.2s}
+        .review-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .btn-submit-review{background:var(--primary);color:white;border:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer;margin-top:10px;transition:.2s}
+        .btn-submit-review:hover{background:#2c5282}
+        .review-msg{font-size:13px;font-weight:500;padding:8px 12px;border-radius:7px;margin-top:10px;display:none}
+        .msg-ok-r{background:#c6f6d5;color:#22543d}
+        .msg-err-r{background:#fed7d7;color:#742a2a}
+
+        @media(max-width:650px){.stats-row{grid-template-columns:1fr 1fr}.hero-body{flex-direction:column}}
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-box">EH</div>
+        <div class="logo-text"><h2>EstateHub</h2><p>Luxury Real Estate</p></div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Client Menu</div>
+        <a href="client-dashboard.html" class="nav-item"><i class="fa fa-chart-pie"></i> Dashboard</a>
+        <a href="properties.html"       class="nav-item"><i class="fa fa-home"></i> Explore Properties</a>
+
+        <a href="notifications.html"    class="nav-item"><i class="fa fa-bell"></i> Notifications</a>
+        <a href="complaints.html"       class="nav-item"><i class="fa fa-gavel"></i> File a Complaint</a>
+        <a href="client-profile.html"   class="nav-item"><i class="fa fa-user"></i> My Profile</a>
+    </nav>
+</aside>
+
+<main class="main">
+
+    <div id="content"><p style="color:var(--muted);text-align:center;padding:60px">Loading agent profile...</p></div>
+</main>
+
+<script>
+    const agentId = new URLSearchParams(window.location.search).get('id');
+    const API_PUB = 'http://localhost:8080/api/agents';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!agentId) { document.getElementById('content').innerHTML = '<p style="color:red;text-align:center;padding:60px">No agent selected.</p>'; return; }
+        loadPortfolio();
+    });
+
+    async function loadPortfolio() {
+        try {
+            const [agent, properties] = await Promise.all([
+                fetch(`${API_PUB}/${agentId}`).then(r => r.json()),
+                fetch(`${API_PUB}/${agentId}/properties`).then(r => r.json())
+            ]);
+
+            const sold  = properties.filter(p => p.status === 'SOLD');
+            const avail = properties.filter(p => p.status === 'AVAILABLE');
+
+            // SCHEDULE fetch (from other team member's endpoint)
+            let scheduleHtml = '';
+            try {
+                const schedules = await fetch(`http://localhost:8080/api/schedules/agent/${agentId}`).then(r => r.json());
+                if (Array.isArray(schedules) && schedules.length) {
+                    scheduleHtml = `<table class="schedule-table">
+                        <thead><tr><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>${schedules.map(s => `
+                            <tr>
+                                <td>${s.date||'—'}</td>
+                                <td>${s.time||s.timeSlot||'—'}</td>
+                                <td>${s.status==='AVAILABLE'?'<span class="badge-avail-s">Available</span>':'<span class="badge-booked">Booked</span>'}</td>
+                                <td>${s.status==='AVAILABLE'?`<a href="booking.html?agentId=${agentId}&scheduleId=${s.id}" class="btn-book" style="padding:5px 12px;font-size:12px">Book</a>`:'—'}</td>
+                            </tr>`).join('')}
+                        </tbody></table>`;
+                } else {
+                    scheduleHtml = `<p style="color:var(--muted);font-size:13px">No schedule slots available.</p>`;
+                }
+            } catch {
+                scheduleHtml = `<p style="color:var(--muted);font-size:13px">Schedule not available yet.</p>`;
+            }
+
+            // PROPERTIES HTML
+            const propHtml = properties.length
+                ? `<div class="prop-grid">${properties.map(buildPropCard).join('')}</div>`
+                : `<p style="color:var(--muted);font-size:13px">No properties listed yet.</p>`;
+
+            document.getElementById('content').innerHTML = `
+                <!-- HERO -->
+                <div class="hero">
+                    <div class="hero-banner"></div>
+                    <div class="hero-photo">
+                        ${agent.photo ? `<img src="${agent.photo}" alt="${agent.fullName}">` : '<i class="fa fa-user"></i>'}
+                    </div>
+                    <div class="hero-body">
+                        <div class="hero-info">
+                            <h1>${agent.fullName||'—'}</h1>
+                            <div class="meta-row">
+                                <span><i class="fa fa-id-badge"></i> Agent ID: <strong>${agent.id}</strong></span>
+                                <span><i class="fa fa-certificate"></i> License: <strong>${agent.licenseNumber||'N/A'}</strong></span>
+                                <span><i class="fa fa-map-marker-alt"></i> <strong>${agent.location||'—'}</strong></span>
+                                <span><i class="fa fa-envelope"></i> ${agent.email||'—'}</span>
+                            </div>
+                        </div>
+                        <a href="booking.html?agentId=${agent.id}&agentName=${encodeURIComponent(agent.fullName||'')}" class="btn-book">
+                            <i class="fa fa-calendar-plus"></i> Book This Agent
+                        </a>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="stats-row">
+                    <div class="stat-box"><div class="stat-val">${properties.length}</div><div class="stat-lbl">Total Listed</div></div>
+                    <div class="stat-box"><div class="stat-val">${sold.length}</div><div class="stat-lbl">Properties Sold</div></div>
+                    <div class="stat-box"><div class="stat-val">${avail.length}</div><div class="stat-lbl">Available Now</div></div>
+                </div>
+
+                <!-- BIO -->
+                <div class="sec">
+                    <div class="sec-title"><i class="fa fa-user-circle"></i> About</div>
+                    <p style="font-size:14px;line-height:1.7;color:#4a5568">${agent.bio||'This agent has not added a bio yet.'}</p>
+                </div>
+
+                <!-- PROPERTIES -->
+                <div class="sec">
+                    <div class="sec-title"><i class="fa fa-home"></i> Listed Properties</div>
+                    ${propHtml}
+                </div>
+
+                <!-- SCHEDULE -->
+                <div class="sec">
+                    <div class="sec-title"><i class="fa fa-calendar-alt"></i> Available Schedule</div>
+                    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Select an available slot and book directly.</p>
+                    ${scheduleHtml}
+                </div>
+
+                <!-- REVIEWS -->
+                <div class="review-sec" id="reviews-wrapper">
+                    <div class="sec-title"><i class="fa fa-star" style="color:#f6ad55"></i> Reviews &amp; Ratings</div>
+                    <div id="reviews-avg-area"></div>
+                    <div id="reviews-list-area"><p style="font-size:13px;color:var(--muted)">Loading reviews...</p></div>
+                    <div class="review-form" id="submit-review-form">
+                        <h4>✍️ Leave a Review</h4>
+                        <div class="star-picker" id="starPicker">
+                            <span data-v="1" onclick="setRating(1)">★</span>
+                            <span data-v="2" onclick="setRating(2)">★</span>
+                            <span data-v="3" onclick="setRating(3)">★</span>
+                            <span data-v="4" onclick="setRating(4)">★</span>
+                            <span data-v="5" onclick="setRating(5)">★</span>
+                        </div>
+                        <textarea class="review-textarea" id="reviewComment" rows="3" placeholder="Share your experience with this agent..."></textarea>
+                        <br>
+                        <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
+                        <div class="review-msg" id="reviewMsg"></div>
+                    </div>
+                </div>
+            `;
+
+            // init sliders
+            document.querySelectorAll('.slider').forEach(s => {
+                s.querySelectorAll('.dot').forEach((dot,i) => dot.addEventListener('click', () => goTo(s,i)));
+            });
+
+            // Load reviews
+            await loadReviews();
+
+        } catch(e) {
+            document.getElementById('content').innerHTML = '<p style="color:red;text-align:center;padding:60px">Could not load agent profile.</p>';
+        }
+    }
+
+    function buildPropCard(p) {
+        const imgs = [p.photo1,p.photo2,p.photo3,p.photo4].filter(Boolean);
+        const price = p.price ? 'LKR '+Number(p.price).toLocaleString() : 'N/A';
+        let meta = `<i class="fa fa-map-marker-alt"></i> ${p.district||'—'}<br>`;
+        if (p.propertyType==='RESIDENTIAL') {
+            if (p.bedrooms  != null) meta += `🛏 ${p.bedrooms} Bed &nbsp;`;
+            if (p.bathrooms != null) meta += `🚿 ${p.bathrooms} Bath`;
+        } else if (p.squareFeet) {
+            meta += `📐 ${p.squareFeet.toLocaleString()} sq ft`;
+        }
+        const sliderContent = imgs.length
+            ? `${imgs.map((s,i)=>`<img class="slider-img${i===0?' active':''}" src="${s}">`).join('')}
+               <div class="slider-dots">${imgs.map((_,i)=>`<div class="dot${i===0?' active':''}" data-i="${i}"></div>`).join('')}</div>
+               ${imgs.length>1?'<button class="slider-btn prev" onclick="prevSlide(this)">‹</button><button class="slider-btn next" onclick="nextSlide(this)">›</button>':''}`
+            : `<div class="no-img"><i class="fa fa-home"></i></div>`;
+            
+        const wishlistBtn = `<button class="wishlist-btn" onclick="toggleWishlist(event, ${p.id})" title="Add to Wishlist"><i class="fa fa-heart"></i></button>`;
+
+        return `
+            <div class="prop-card">
+                <div class="slider">${sliderContent}${wishlistBtn}</div>
+                <div class="prop-body">
+                    <div class="prop-title">${p.title||'Untitled'}</div>
+                    <div class="prop-price">${price}</div>
+                    <div class="prop-meta">${meta}</div>
+                    <span class="badge ${p.propertyType==='RESIDENTIAL'?'badge-res':'badge-com'}">${p.propertyType}</span>
+                    <span class="badge ${p.status==='SOLD'?'badge-sold':'badge-avail'}">${p.status}</span>
+                </div>
+            </div>`;
+    }
+
+    function goTo(slider, idx) {
+        slider.querySelectorAll('.slider-img').forEach(i => i.classList.remove('active'));
+        slider.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        const imgs = slider.querySelectorAll('.slider-img');
+        const dots = slider.querySelectorAll('.dot');
+        if (imgs[idx]) imgs[idx].classList.add('active');
+        if (dots[idx]) dots[idx].classList.add('active');
+        slider.dataset.cur = idx;
+    }
+    function nextSlide(btn) {
+        const s = btn.closest('.slider');
+        const n = s.querySelectorAll('.slider-img').length;
+        goTo(s, (parseInt(s.dataset.cur||0)+1)%n);
+    }
+    function prevSlide(btn) {
+        const s = btn.closest('.slider');
+        const n = s.querySelectorAll('.slider-img').length;
+        goTo(s, (parseInt(s.dataset.cur||0)-1+n)%n);
+    }
+
+    async function toggleWishlist(e, id) {
+        e.stopPropagation();
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const clientId = localStorage.getItem('userId');
+        
+        if (!clientId || clientId === 'null') {
+            alert('Please log in as a client to save properties to your wishlist.');
+            return;
+        }
+
+        const isActive = btn.classList.contains('active');
+        try {
+            if (isActive) {
+                const res = await fetch(`http://localhost:8080/api/wishlist/${clientId}/remove/${id}`, { method: 'DELETE' }).then(r => r.json());
+                if (res.status === 'success') {
+                    btn.classList.remove('active');
+                }
+            } else {
+                const res = await fetch(`http://localhost:8080/api/wishlist/${clientId}/add/${id}`, { method: 'POST' }).then(r => r.json());
+                if (res.status === 'success' || res.status === 'exists') {
+                    btn.classList.add('active');
+                }
+            }
+        } catch (error) {
+            console.error('Wishlist error', error);
+        }
+    }
+
+    // ── REVIEWS ─────────────────────────────────────────────────────────
+    // Backend: GET /api/reviews  POST /api/reviews
+    // Review model: { id, comment, rating, user:{id,fullName,role} }
+    let selectedRating = 0;
+
+    async function loadReviews() {
+        const avgEl  = document.getElementById('reviews-avg-area');
+        const listEl = document.getElementById('reviews-list-area');
+        if (!avgEl || !listEl) return;
+        try {
+            const all     = await fetch('http://localhost:8080/api/reviews').then(r => r.json());
+            const reviews = all.filter(r => r.user?.role === 'CLIENT' || !r.user?.role);
+
+            if (!reviews.length) {
+                listEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">No reviews yet. Be the first to leave one!</p>';
+                avgEl.innerHTML  = ''; return;
+            }
+
+            const avg   = (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1);
+            const filled = Math.round(parseFloat(avg));
+            const stars  = '★'.repeat(filled) + '☆'.repeat(5 - filled);
+            avgEl.innerHTML = `<div class="avg-banner">
+                <div class="avg-num">${avg}</div>
+                <div><div class="avg-stars-disp">${stars}</div>
+                <div class="avg-sub">${reviews.length} review${reviews.length!==1?'s':''}</div></div>
+            </div>`;
+
+            listEl.innerHTML = reviews.map(r => {
+                const s = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
+                return `<div class="review-card-pub">
+                    <div class="stars-disp">${s} <span style="font-size:12px;color:var(--muted)">&nbsp;${r.rating}/5</span></div>
+                    <div class="review-text">${r.comment||'—'}</div>
+                    <div class="review-by">— ${r.user?.fullName||'Client'}</div>
+                </div>`;
+            }).join('');
+        } catch {
+            if (listEl) listEl.innerHTML = '<p style="font-size:13px;color:red">Could not load reviews.</p>';
+        }
+    }
+
+    function setRating(val) {
+        selectedRating = val;
+        document.querySelectorAll('#starPicker span').forEach(s => {
+            s.classList.toggle('lit', parseInt(s.dataset.v) <= val);
+        });
+    }
+
+    async function submitReview() {
+        const clientId = localStorage.getItem('userId');
+        const comment  = document.getElementById('reviewComment').value.trim();
+        const msgEl    = document.getElementById('reviewMsg');
+        msgEl.style.display = 'none';
+
+        if (!clientId || clientId === 'null') {
+            msgEl.textContent = '❌ You must be logged in to leave a review.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+        if (!selectedRating) {
+            msgEl.textContent = '❌ Please select a star rating.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+        if (!comment) {
+            msgEl.textContent = '❌ Please write a comment.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block'; return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:8080/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment, rating: selectedRating, user: { id: parseInt(clientId) } })
+            }).then(r => r.json());
+
+            if (res.status === 'success') {
+                msgEl.textContent = '✅ Review submitted successfully!';
+                msgEl.className = 'review-msg msg-ok-r'; msgEl.style.display = 'block';
+                document.getElementById('reviewComment').value = '';
+                selectedRating = 0;
+                document.querySelectorAll('#starPicker span').forEach(s => s.classList.remove('lit'));
+                await loadReviews();
+            } else {
+                msgEl.textContent = '❌ ' + (res.message || 'Could not submit.');
+                msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block';
+            }
+        } catch {
+            msgEl.textContent = '❌ Server error. Please try again.';
+            msgEl.className = 'review-msg msg-err-r'; msgEl.style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>

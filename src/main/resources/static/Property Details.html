@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Property Details - EstateHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --primary:#2b6cb0;--primary-light:#ebf8ff;--gold:#c9a84c;--gold-light:#f2d27b;
+            --bg:#f0f4f8;--card:#ffffff;--text:#2d3748;--muted:#718096;--border:#e2e8f0;
+            --danger:#e53e3e;--success:#38a169;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        /* TOPBAR */
+        .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+        .back-btn{display:flex;align-items:center;gap:7px;color:var(--primary);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid var(--primary-light);background:var(--primary-light);transition:.2s}
+        .back-btn:hover{background:var(--primary);color:white}
+        .topbar-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)}
+
+        /* CONTAINER */
+        .container{max-width:1100px;margin:32px auto;padding:0 24px}
+
+        /* GALLERY */
+        .gallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:220px 220px;gap:6px;border-radius:16px;overflow:hidden;margin-bottom:32px}
+        .gallery-main{grid-row:1/3;cursor:pointer;overflow:hidden}
+        .gallery-thumb{cursor:pointer;overflow:hidden}
+        .gallery-main img,.gallery-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+        .gallery-main:hover img,.gallery-thumb:hover img{transform:scale(1.04)}
+        .gallery-no-img{grid-column:1/-1;grid-row:1/-1;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:80px;color:#cbd5e0}
+        .gallery-placeholder{background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:32px;color:#cbd5e0}
+
+        /* CONTENT LAYOUT */
+        .content-grid{display:grid;grid-template-columns:1fr 340px;gap:28px}
+
+        /* LEFT PANEL */
+        .section-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px}
+        .prop-title-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:6px}
+        .prop-main-title{font-family:'DM Serif Display',serif;font-size:28px;line-height:1.2}
+        .status-badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase}
+        .status-AVAILABLE{background:#c6f6d5;color:#276749}
+        .status-SOLD{background:#fed7d7;color:#9b2c2c}
+        .prop-location{font-size:15px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+        .prop-location i{color:var(--primary)}
+        .prop-price-large{font-size:32px;font-weight:700;color:var(--primary);font-family:'DM Serif Display',serif;margin-bottom:20px}
+        .type-tag{display:inline-block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+        .tag-RESIDENTIAL{background:#ebf8ff;color:#2b6cb0}
+        .tag-COMMERCIAL{background:#fffbeb;color:#b7791f}
+
+        /* DETAIL CHIPS */
+        .chips-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+        .chip{display:flex;align-items:center;gap:7px;font-size:13px;color:#4a5568;background:#f7fafc;padding:8px 14px;border-radius:10px;border:1px solid var(--border)}
+        .chip i{color:var(--primary);font-size:13px}
+        .chip strong{font-weight:700}
+
+        /* SECTION HEADINGS */
+        .section-h{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+
+        /* AGENT CARD */
+        .agent-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;text-align:center}
+        .agent-photo{width:80px;height:80px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--primary);margin:0 auto 14px;overflow:hidden}
+        .agent-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+        .agent-name{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:4px}
+        .agent-meta{font-size:13px;color:var(--muted);margin-bottom:4px}
+        .agent-license{display:inline-block;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:16px}
+        .agent-sold{font-size:13px;color:var(--muted);margin-bottom:20px}
+        .agent-sold strong{color:var(--text);font-size:15px}
+
+        /* ACTION BUTTONS */
+        .action-btn{width:100%;padding:12px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;border:none;transition:all .2s;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+        .btn-wishlist-add{background:#fff5f5;color:var(--danger);border:1.5px solid #fed7d7}
+        .btn-wishlist-add:hover{background:var(--danger);color:white}
+        .btn-wishlist-remove{background:var(--danger);color:white}
+        .btn-wishlist-remove:hover{background:#c53030}
+        .btn-contact{background:var(--primary);color:white}
+        .btn-contact:hover{background:#2c5282}
+        .btn-back-listings{background:#f7fafc;color:var(--text);border:1px solid var(--border)}
+        .btn-back-listings:hover{background:#edf2f7}
+
+        /* DATE */
+        .added-date{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:24px;right:24px;color:white;padding:12px 22px;border-radius:10px;font-size:14px;display:none;z-index:1000;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+
+        /* LIGHTBOX */
+        .lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:2000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+        .lightbox.open{display:flex}
+        .lightbox img{max-width:90vw;max-height:80vh;border-radius:12px;object-fit:contain}
+        .lb-close{position:absolute;top:20px;right:24px;color:white;font-size:26px;cursor:pointer;background:rgba(255,255,255,.1);border:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .lb-nav{display:flex;gap:16px}
+        .lb-nav button{background:rgba(255,255,255,.15);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+        .lb-nav button:hover{background:rgba(255,255,255,.3)}
+        .lb-counter{color:rgba(255,255,255,.7);font-size:13px}
+
+        @media(max-width:900px){.content-grid{grid-template-columns:1fr}.gallery{grid-template-columns:1fr;grid-template-rows:auto;height:260px}.gallery-thumb{display:none}.gallery-main{grid-row:auto}}
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <a href="properties.html" class="back-btn"><i class="fa fa-arrow-left"></i> Back to Listings</a>
+    <span class="topbar-title" id="topbarTitle">Property Details</span>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+    <button class="lb-close" onclick="closeLightbox()"><i class="fa fa-times"></i></button>
+    <img id="lbImg" src="" alt="Property photo"/>
+    <div class="lb-nav">
+        <button onclick="lbPrev()"><i class="fa fa-chevron-left"></i> Prev</button>
+        <span class="lb-counter" id="lbCounter"></span>
+        <button onclick="lbNext()">Next <i class="fa fa-chevron-right"></i></button>
+    </div>
+</div>
+
+<div class="container" id="mainContent">
+    <div style="text-align:center;padding:80px;color:var(--muted)">
+        <i class="fa fa-spinner fa-spin" style="font-size:36px;margin-bottom:12px;display:block"></i>
+        Loading property details…
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'http://localhost:8080/api';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const clientId = user.id || null;
+    const params = new URLSearchParams(window.location.search);
+    const propertyId = params.get('id');
+
+    let photos = [];
+    let lbIndex = 0;
+    let inWishlist = false;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!propertyId) { showError('No property ID provided.'); return; }
+        try {
+            const [propRes, wlRes] = await Promise.all([
+                fetch(`${API}/properties/${propertyId}`),
+                clientId ? fetch(`${API}/wishlist/${clientId}/check/${propertyId}`) : Promise.resolve(null)
+            ]);
+            if (!propRes.ok) { showError('Property not found.'); return; }
+            const prop = await propRes.json();
+            if (wlRes) {
+                const wlData = await wlRes.json();
+                inWishlist = wlData.inWishlist;
+            }
+            renderProperty(prop);
+        } catch (e) {
+            showError('Failed to load property details.');
+        }
+    });
+
+    function renderProperty(p) {
+        photos = [p.photo1, p.photo2, p.photo3, p.photo4].filter(Boolean);
+        document.getElementById('topbarTitle').textContent = p.title || 'Property Details';
+        document.title = `${p.title || 'Property'} - EstateHub`;
+
+        const price = p.price ? `LKR ${Number(p.price).toLocaleString()}` : 'Price on Request';
+
+        // Gallery HTML
+        let galleryHtml = '';
+        if (photos.length === 0) {
+            galleryHtml = `<div class="gallery-no-img"><i class="fa fa-home"></i></div>`;
+        } else if (photos.length === 1) {
+            galleryHtml = `<div class="gallery-main" onclick="openLightbox(0)" style="grid-column:1/-1;grid-row:1/-1"><img src="${photos[0]}" alt="Main"></div>`;
+        } else {
+            galleryHtml = `<div class="gallery-main" onclick="openLightbox(0)"><img src="${photos[0]}" alt="Main"></div>`;
+            for (let i = 1; i < Math.min(photos.length, 4); i++) {
+                galleryHtml += `<div class="gallery-thumb" onclick="openLightbox(${i})"><img src="${photos[i]}" alt="Photo ${i+1}"></div>`;
+            }
+        }
+
+        // Details chips
+        let chips = '';
+        if (p.propertyType === 'RESIDENTIAL') {
+            if (p.bedrooms) chips += `<div class="chip"><i class="fa fa-bed"></i> <span><strong>${p.bedrooms}</strong> Bedrooms</span></div>`;
+            if (p.bathrooms) chips += `<div class="chip"><i class="fa fa-bath"></i> <span><strong>${p.bathrooms}</strong> Bathrooms</span></div>`;
+        } else {
+            if (p.squareFeet) chips += `<div class="chip"><i class="fa fa-ruler-combined"></i> <span><strong>${p.squareFeet.toLocaleString()}</strong> sq ft</span></div>`;
+        }
+        if (p.district) chips += `<div class="chip"><i class="fa fa-map-marker-alt"></i> <span>${p.district}</span></div>`;
+        if (p.addedDate) chips += `<div class="chip"><i class="fa fa-calendar"></i> <span>Listed ${new Date(p.addedDate).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</span></div>`;
+
+        // Wishlist button
+        const wlHtml = clientId ? `
+            <button class="action-btn ${inWishlist ? 'btn-wishlist-remove' : 'btn-wishlist-add'}" id="wlBtn" onclick="toggleWishlist()">
+                <i class="fa fa-heart"></i> ${inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            </button>` : `<p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px"><a href="login.html" style="color:var(--primary)">Log in</a> to save to wishlist</p>`;
+
+        // Agent info
+        const agentPhotoHtml = p.agent?.photo
+            ? `<img src="${p.agent.photo}" alt="${p.agent.fullName}">`
+            : `<span>${(p.agent?.fullName || 'A').charAt(0)}</span>`;
+
+        document.getElementById('mainContent').innerHTML = `
+        <div class="gallery">${galleryHtml}</div>
+        <div class="content-grid">
+            <div>
+                <div class="section-card">
+                    <div class="prop-title-row">
+                        <div class="prop-main-title">${p.title || 'Untitled Property'}</div>
+                        <span class="status-badge status-${p.status}">${p.status}</span>
+                    </div>
+                    <div class="prop-location"><i class="fa fa-map-marker-alt"></i>${p.district || 'Location not specified'}, Sri Lanka</div>
+                    <span class="type-tag tag-${p.propertyType}">${p.propertyType}</span>
+                    <div class="prop-price-large">${price}</div>
+                    <div class="chips-row">${chips}</div>
+                </div>
+
+                ${p.description ? `<div class="section-card">
+                    <div class="section-h">Description</div>
+                    <p style="font-size:14px;line-height:1.75;color:#4a5568">${p.description}</p>
+                </div>` : ''}
+            </div>
+
+            <div>
+                <!-- AGENT CARD -->
+                <div class="agent-card">
+                    <div class="section-h" style="text-align:left;font-size:14px;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;font-weight:600">Listed By</div>
+                    <div class="agent-photo">${agentPhotoHtml}</div>
+                    <div class="agent-name">${p.agent?.fullName || 'Unknown Agent'}</div>
+                    ${p.agent?.location ? `<div class="agent-meta"><i class="fa fa-map-marker-alt" style="color:var(--primary)"></i> ${p.agent.location}</div>` : ''}
+                    ${p.agent?.licenseNumber ? `<div class="agent-license"><i class="fa fa-id-card"></i> ${p.agent.licenseNumber}</div>` : ''}
+                    ${p.agent?.bio ? `<p style="font-size:13px;color:#4a5568;margin-bottom:16px;line-height:1.6">${p.agent.bio}</p>` : ''}
+                    <div class="agent-sold">Properties Sold: <strong>${p.agent?.soldProperties ?? 0}</strong></div>
+
+                    ${wlHtml}
+                    <button class="action-btn btn-back-listings" onclick="window.location.href='properties.html'">
+                        <i class="fa fa-list"></i> All Listings
+                    </button>
+                </div>
+                <div class="added-date" id="addedDateEl"></div>
+            </div>
+        </div>`;
+
+        if (p.addedDate) {
+            document.getElementById('addedDateEl').textContent =
+                `Property listed on ${new Date(p.addedDate).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+        }
+    }
+
+    async function toggleWishlist() {
+        if (!clientId) return;
+        const btn = document.getElementById('wlBtn');
+        if (inWishlist) {
+            const res = await fetch(`${API}/wishlist/${clientId}/remove/${propertyId}`, {method:'DELETE'}).then(r => r.json());
+            if (res.status === 'success') {
+                inWishlist = false;
+                btn.className = 'action-btn btn-wishlist-add';
+                btn.innerHTML = '<i class="fa fa-heart"></i> Add to Wishlist';
+                showToast('Removed from wishlist', 'info');
+            }
+        } else {
+            const res = await fetch(`${API}/wishlist/${clientId}/add/${propertyId}`, {method:'POST'}).then(r => r.json());
+            if (res.status === 'success' || res.status === 'exists') {
+                inWishlist = true;
+                btn.className = 'action-btn btn-wishlist-remove';
+                btn.innerHTML = '<i class="fa fa-heart"></i> Remove from Wishlist';
+                showToast('Added to wishlist ❤️', 'success');
+            }
+        }
+    }
+
+    function openLightbox(idx) {
+        if (!photos.length) return;
+        lbIndex = idx;
+        document.getElementById('lbImg').src = photos[lbIndex];
+        document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${photos.length}`;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+    function lbPrev() { lbIndex = (lbIndex - 1 + photos.length) % photos.length; document.getElementById('lbImg').src = photos[lbIndex]; document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${photos.length}`; }
+    function lbNext() { lbIndex = (lbIndex + 1) % photos.length; document.getElementById('lbImg').src = photos[lbIndex]; document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${photos.length}`; }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') lbPrev();
+        if (e.key === 'ArrowRight') lbNext();
+    });
+
+    function showError(msg) {
+        document.getElementById('mainContent').innerHTML = `<div style="text-align:center;padding:80px;color:var(--muted)"><i class="fa fa-exclamation-circle" style="font-size:40px;display:block;margin-bottom:12px;color:#cbd5e0"></i><h3 style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px">Property Not Found</h3><p style="margin-bottom:20px">${msg}</p><a href="properties.html" style="color:var(--primary);font-weight:600">← Back to Listings</a></div>`;
+    }
+
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.background = type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : '#2d3748';
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+    }
+</script>
+</body>
+</html>
